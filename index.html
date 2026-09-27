@@ -413,6 +413,12 @@
       } else {
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('mainApp').style.display = 'block';
+        
+        // If they logged in but never really set their profile (e.g. goal is same as weight, or default)
+        if (!localStorage.getItem('db_profile') || pState.w === pState.tw) {
+          openModal('profileModal');
+        }
+        
         changeDate(0);
       }
     }
@@ -441,6 +447,9 @@
 
     function openModal(id) {
       if(id === 'weightModal') document.getElementById('w-current').value = pState.w.toFixed(1);
+      if(id === 'profileModal') {
+        document.getElementById('p-start-weight').value = pState.sw; document.getElementById('p-gen').value = pState.g; document.getElementById('p-age').value = pState.a; document.getElementById('p-height').value = pState.h; document.getElementById('p-act').value = pState.act; document.getElementById('p-t-weight').value = pState.tw; document.getElementById('p-t-months').value = pState.tm; document.getElementById('p-diet').value = pState.diet;
+      }
       document.getElementById(id).classList.add('active');
     }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
@@ -448,6 +457,32 @@
     function saveWeight() {
       let newW = Number(document.getElementById('w-current').value);
       if(newW > 0) { pState.w = newW; localStorage.setItem('db_profile', JSON.stringify(pState)); computeMetrics(); closeModal('weightModal'); }
+    }
+    
+    function saveProfile() {
+      let tw = Number(document.getElementById('p-t-weight').value);
+      let tm = Number(document.getElementById('p-t-months').value) || 3;
+      let w = pState.w;
+      
+      // Validation & Warning (Dangerous Goal Check)
+      let kgToLose = w - tw;
+      let weeklyLoss = kgToLose / (tm * 4.33); // approx weeks in month
+      if (weeklyLoss > 1.2) {
+        alert("⚠️ AI Warning: เป้าหมายอันตราย/หักโหมเกินไป!\nการลดน้ำหนักสัปดาห์ละ " + weeklyLoss.toFixed(2) + " kg เร็วเกินไป ร่างกายจะสูญเสียกล้ามเนื้อและระบบเผาผลาญพัง\nแนะนำให้ปรับระยะเวลา (เดือน) ให้นานขึ้นครับ");
+        return;
+      }
+      
+      pState.sw = Number(document.getElementById('p-start-weight').value) || pState.w; 
+      pState.g = document.getElementById('p-gen').value; 
+      pState.a = Number(document.getElementById('p-age').value); 
+      pState.h = Number(document.getElementById('p-height').value); 
+      pState.act = Number(document.getElementById('p-act').value); 
+      pState.tw = tw; 
+      pState.tm = tm; 
+      pState.diet = document.getElementById('p-diet').value;
+      localStorage.setItem('db_profile', JSON.stringify(pState)); 
+      computeMetrics(); 
+      closeModal('profileModal');
     }
 
     function changeDate(days) {
@@ -457,16 +492,35 @@
       computeMetrics();
     }
 
+    function calculateTargets() {
+      let bmr = (pState.g === 'M') ? (10 * pState.w) + (6.25 * pState.h) - (5 * pState.a) + 5 : (10 * pState.w) + (6.25 * pState.h) - (5 * pState.a) - 161;
+      let tdee = bmr * pState.act;
+      
+      let kgToLose = pState.w - pState.tw; if (kgToLose < 0) kgToLose = 0;
+      let dailyDeficit = (kgToLose * 7700) / ((pState.tm || 3) * 30);
+      if (dailyDeficit > 1100) dailyDeficit = 1100; // Hard cap
+      
+      let targetCal = Math.round(tdee - dailyDeficit);
+      
+      // Diet Strategy
+      let pro=0, carb=0, fat=0;
+      if(pState.diet === 'highpro') { pro = (targetCal*0.4)/4; fat = (targetCal*0.3)/9; carb = (targetCal*0.3)/4; }
+      else if(pState.diet === 'lowcarb') { pro = (targetCal*0.35)/4; fat = (targetCal*0.45)/9; carb = (targetCal*0.2)/4; }
+      else if(pState.diet === 'keto') { carb = 30; pro = (targetCal*0.25)/4; fat = (targetCal - (carb*4 + pro*4))/9; }
+      else { pro = (targetCal*0.3)/4; fat = (targetCal*0.3)/9; carb = (targetCal*0.4)/4; } // Balanced
+      
+      let weeklyRate = (dailyDeficit * 7) / 7700;
+      
+      return { cal: targetCal, pro: Math.round(pro), carb: Math.round(carb), fat: Math.round(fat), rate: weeklyRate };
+    }
+
     function computeMetrics() {
       if (!appData[activeDateStr]) appData[activeDateStr] = { breakfast:[], lunch:[], dinner:[], snack:[] };
       let dayData = appData[activeDateStr];
       let cur = { cal:0, pro:0, carb:0, fat:0 };
       ['breakfast','lunch','dinner','snack'].forEach(m => { dayData[m].forEach(x => { cur.cal+=x.cal; cur.pro+=x.pro; cur.carb+=x.carb; cur.fat+=x.fat; }); });
 
-      // Goals
-      let bmr = (pState.g === 'M') ? (10 * pState.w) + (6.25 * pState.h) - (5 * pState.a) + 5 : (10 * pState.w) + (6.25 * pState.h) - (5 * pState.a) - 161;
-      let targetCal = Math.round((bmr * pState.act) - 500);
-      let targets = { cal: targetCal, pro: Math.round((targetCal*0.3)/4), carb: Math.round((targetCal*0.4)/4), fat: Math.round((targetCal*0.3)/9) };
+      let targets = calculateTargets();
       
       // Update Journey UI
       document.getElementById('j-start-w').textContent = pState.sw.toFixed(1);
@@ -475,11 +529,13 @@
       document.getElementById('j-current-w').textContent = pState.w.toFixed(1);
       document.getElementById('j-bmi').textContent = (pState.w / Math.pow(pState.h/100, 2)).toFixed(1);
       let lost = pState.sw - pState.w;
-      document.getElementById('j-lost-w').textContent = `▼ ${lost.toFixed(1)} kg จากจุดเริ่ม`;
+      document.getElementById('j-lost-w').textContent = (lost > 0 ? `▼ ${lost.toFixed(1)}` : `▲ ${Math.abs(lost).toFixed(1)}`) + ` kg จากจุดเริ่ม`;
       
       // Update Calories UI
       document.getElementById('c-remain').textContent = (targets.cal - cur.cal).toLocaleString();
-      document.getElementById('c-togoal').textContent = (pState.w - pState.tw).toFixed(1) + " kg";
+      document.getElementById('c-togoal').textContent = (pState.w - pState.tw > 0 ? (pState.w - pState.tw).toFixed(1) : 0) + " kg";
+      document.getElementById('c-trend').textContent = "-" + targets.rate.toFixed(2) + " kg/wk";
+      document.getElementById('c-split').textContent = `TARGET P ${targets.pro} · C ${targets.carb} · F ${targets.fat}`;
       
       // Update Macros UI
       document.getElementById('val-p').textContent = Math.round(cur.pro); document.getElementById('tgt-p').textContent = targets.pro;
@@ -497,6 +553,7 @@
       ['breakfast','lunch','dinner','snack'].forEach(m => {
         let arr = dayData[m]; let mealCal = arr.reduce((s, x) => s + x.cal, 0);
         html += `<div class="bg-[#1e1e2d] rounded-xl p-4 mb-3 border border-[#252538]"><div class="flex justify-between items-center"><span class="font-bold text-sm uppercase tracking-wide">${m}</span><span class="font-mono text-sm text-purple-400">${mealCal} kcal</span></div>`;
+        if(arr.length === 0) html += `<div class="text-xs text-gray-500 italic mt-2">ยังไม่มีบันทึกอาหารมื้อนี้</div>`;
         arr.forEach(item => { html += `<div class="flex justify-between py-2 border-t border-[#252538] mt-2 text-sm"><div class="text-gray-300">${item.name}</div><div class="text-gray-400 font-mono text-xs">P:${item.pro} C:${item.carb} F:${item.fat}</div></div>`; });
         html += `</div>`;
       });
@@ -547,3 +604,5 @@
 <!-- cache bust v18 -->
 
 <!-- cache bust v19 -->
+
+<!-- cache bust v20 -->
