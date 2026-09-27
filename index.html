@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="th" data-theme="obsidian">
 <head>
 <meta charset="UTF-8" />
@@ -551,25 +551,7 @@
           <button data-v="traveller" class="rounded-xl border border-line py-3 text-[12px]">🏕️ Traveller (Blue)</button>
         </div>
       </div>
-      <div class="border-t border-line/60 pt-4">
-        <div class="eyebrow mb-2">Gemini Vision API</div>
-        <label class="text-mute text-[11px]">API Key</label>
-        <div class="mt-1 flex gap-2">
-          <input id="sKey" type="password" autocomplete="off" class="field num text-[12px]" placeholder="AIza..." />
-          <button data-toggle-pw="sKey" class="shrink-0 rounded-xl border border-line px-3 text-mute hover:text-txt text-[11px]">แสดง</button>
-        </div>
-        <label class="text-mute text-[11px] mt-3 block">Model สำหรับวิเคราะห์รูปอาหาร</label>
-        <select id="sModel" class="field mt-1 text-[12px]">
-          <option value="gemini-1.5-flash">gemini-1.5-flash — แนะนำ · แม่น + เร็ว</option>
-          <option value="gemini-1.5-pro">gemini-1.5-pro — ละเอียดสุด (ช้ากว่า)</option>
-          <option value="gemini-1.5-flash-8b">gemini-1.5-flash-8b — ถูก/เร็วสุด</option>
-          <option value="gemini-1.5-pro-exp-0827">gemini-1.5-pro-exp-0827 — รุ่นเก่า (สำรอง)</option>
-          <option value="custom">กำหนดเอง…</option>
-        </select>
-        <input id="sModelCustom" class="field mt-2 num text-[12px] hidden" placeholder="เช่น gemini-1.5-flash" />
-        <p class="text-[11px] text-mute mt-2">ถ้าโมเดลที่เลือกใช้ไม่ได้ ระบบจะสลับไปรุ่นสำรองให้อัตโนมัติ · คีย์เก็บใน localStorage ของเบราว์เซอร์นี้เท่านั้น</p>
-        <button id="sSaveKey" class="btn-p mt-3 w-full rounded-xl py-3">บันทึก API</button>
-      </div>
+      <div class="border-t border-line/60 pt-4"><div class="eyebrow mb-2">☁️ Cloud Sync (รหัสซิงค์ข้ามเครื่อง)</div><p class="text-[11px] text-mute mb-2">รหัสซิงค์ของคุณคือรหัสด้านล่าง ถ้านำไปกรอกเครื่องอื่น ข้อมูลจะตรงกันทันที</p><div class="flex gap-2"><input id="syncCodeInput" class="field flex-1 num text-[14px] text-center tracking-widest font-bold" placeholder="เช่น A1B2C" /><button onclick="window.loadFromCloud(document.getElementById('syncCodeInput').value)" class="btn-p px-4 rounded-xl">โหลดข้อมูล</button></div><script>setTimeout(() => { document.getElementById('syncCodeInput').value = localStorage.getItem('nj.syncCode') || ''; }, 1000);</script></div>
       <div class="border-t border-line/60 pt-4">
         <div class="eyebrow mb-2">Data</div>
         <div class="grid grid-cols-2 gap-2">
@@ -1616,9 +1598,9 @@
     $('#sModelCustom').classList.toggle('hidden', known);
     $('#sModelCustom').value = known ? '' : m;
   }
-  $('#sModel').addEventListener('change', () => $('#sModelCustom').classList.toggle('hidden', $('#sModel').value !== 'custom'));
+  
   $('#btnSettings').addEventListener('click', () => {
-    $('#sKey').value = getKey(); syncModelSelect();
+    
     $$('#sTheme [data-v]').forEach((b) => b.classList.toggle('on', b.dataset.v === theme));
     openModal('mSettings');
   });
