@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="th" data-theme="obsidian">
 <head>
 <meta charset="UTF-8" />
@@ -191,29 +191,64 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    
     const app = initializeApp({
       apiKey: "AIzaSyDt8NzMO9TKV809ns665qyuhfotBleLywE",
       authDomain: "cal-app-71068.firebaseapp.com",
       projectId: "cal-app-71068"
     });
-    window.db = getFirestore(app); window.fsDoc = doc; window.fsSetDoc = setDoc; window.fsGetDoc = getDoc;
-    let syncCode = localStorage.getItem('nj.syncCode');
-    if(!syncCode) { syncCode = Math.random().toString(36).substr(2, 5).toUpperCase(); localStorage.setItem('nj.syncCode', syncCode); }
+    
+    window.db = getFirestore(app); window.auth = getAuth(app); window.fsDoc = doc; window.fsSetDoc = setDoc; window.fsGetDoc = getDoc;
+    window.googleProvider = new GoogleAuthProvider();
+    
+    window.loginWithGoogle = () => signInWithPopup(window.auth, window.googleProvider).catch(e => alert(e.message));
+    window.logout = () => signOut(window.auth).then(() => { localStorage.clear(); location.reload(); });
+
     let syncTimeout;
-    window.triggerCloudSync = () => { clearTimeout(syncTimeout); syncTimeout = setTimeout(async () => {
-      const data = {}; for(let i=0; i<localStorage.length; i++) { const k = localStorage.key(i); if(k.startsWith('nj.')) data[k] = localStorage.getItem(k); }
-      await window.fsSetDoc(window.fsDoc(window.db, 'sync', syncCode), data);
-    }, 1500); };
-    window.loadFromCloud = async (code) => {
-      const docSnap = await window.fsGetDoc(window.fsDoc(window.db, 'sync', code.toUpperCase()));
+    window.triggerCloudSync = () => { 
+      const user = window.auth.currentUser; if(!user) return;
+      clearTimeout(syncTimeout); 
+      syncTimeout = setTimeout(async () => {
+        const data = {}; for(let i=0; i<localStorage.length; i++) { const k = localStorage.key(i); if(k.startsWith('nj.')) data[k] = localStorage.getItem(k); }
+        await window.fsSetDoc(window.fsDoc(window.db, 'users', user.uid), data);
+      }, 1500); 
+    };
+
+    window.loadFromCloud = async () => {
+      const user = window.auth.currentUser; if(!user) return;
+      const docSnap = await window.fsGetDoc(window.fsDoc(window.db, 'users', user.uid));
       if(docSnap.exists()) {
         const data = docSnap.data(); for(const k in data) localStorage.setItem(k, data[k]);
-        localStorage.setItem('nj.syncCode', code.toUpperCase()); location.reload();
-      } else alert('❌ ไม่พบข้อมูลรหัสนี้');
+        location.reload();
+      }
     };
+    
+    onAuthStateChanged(window.auth, async (user) => {
+      const overlay = document.getElementById('loginOverlay');
+      if (user) {
+        if(overlay) overlay.style.display = 'none';
+        // Auto load on first login if empty
+        if(!localStorage.getItem('nj.profile')) { await window.loadFromCloud(); }
+      } else {
+        if(overlay) overlay.style.display = 'flex';
+      }
+    });
   </script>
 </head>
 <body class="min-h-screen">
+  
+  <div id="loginOverlay" class="fixed inset-0 bg-ink z-[9999] flex flex-col items-center justify-center px-6 text-center" style="display: flex;">
+    <div class="w-16 h-16 bg-acc/20 rounded-2xl flex items-center justify-center mb-6 text-acc">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    </div>
+    <h1 class="text-2xl font-bold mb-2">Nutri Journal</h1>
+    <p class="text-mute text-[14px] mb-10 max-w-[240px]">AI-Powered Nutrition Tracker.<br>Sign in to sync your data.</p>
+    <button onclick="window.loginWithGoogle()" class="btn-p w-full max-w-[280px] rounded-xl py-4 flex items-center justify-center gap-3">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      Continue with Google
+    </button>
+  </div>
 
 <!-- ===================== BACKGROUND SCENERY ===================== -->
 <div id="bgScene" class="fixed inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
@@ -499,18 +534,13 @@
           <button data-v="bulk" class="rounded-xl border border-line py-2 text-[12px]">Lean Bulk +10%</button>
         </div>
       </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="text-mute text-[11px]">โปรตีน (g/kg)</label>
-          <div class="seg mt-1 grid grid-cols-3 gap-1" id="pProt">
-            <button data-v="2.0" class="rounded-lg border border-line py-2 text-[12px] num">2.0</button>
-            <button data-v="2.1" class="rounded-lg border border-line py-2 text-[12px] num">2.1</button>
-            <button data-v="2.2" class="rounded-lg border border-line py-2 text-[12px] num">2.2</button>
-          </div>
-        </div>
-        <div>
-          <label class="text-mute text-[11px]">ไขมัน <span id="pFatLbl" class="num text-txt">25%</span> ของแคลอรี่</label>
-          <input id="pFat" type="range" min="20" max="25" step="1" class="w-full mt-3" />
+      <div class="mt-2">
+        <label class="text-mute text-[11px] block mb-2">Diet Plan · แผนโภชนาการ (อ้างอิงงานวิจัย)</label>
+        <div class="seg grid grid-cols-2 gap-2" id="pDiet">
+          <button data-v="balanced" class="rounded-xl border border-line py-2.5 flex flex-col items-center justify-center leading-tight"><span class="text-[12px]">Balanced</span><span class="text-[10px] text-mute mt-1">สมดุล (P 30% / F 30%)</span></button>
+          <button data-v="highcarb" class="rounded-xl border border-line py-2.5 flex flex-col items-center justify-center leading-tight"><span class="text-[12px]">High Carb</span><span class="text-[10px] text-mute mt-1">สายปั๊ม/วิ่ง (Carbs 60%)</span></button>
+          <button data-v="lowcarb" class="rounded-xl border border-line py-2.5 flex flex-col items-center justify-center leading-tight"><span class="text-[12px]">Low Carb</span><span class="text-[10px] text-mute mt-1">เน้นลีน (Carbs 20%)</span></button>
+          <button data-v="keto" class="rounded-xl border border-line py-2.5 flex flex-col items-center justify-center leading-tight"><span class="text-[12px]">Ketogenic</span><span class="text-[10px] text-mute mt-1">เผาไขมัน (Fat 75%)</span></button>
         </div>
       </div>
       <div class="rounded-2xl border border-acc/40 bg-acc/[.08] p-3">
@@ -559,6 +589,7 @@
           <button id="sExport" class="rounded-xl border border-line py-3 text-[12px] hover:border-acc">Export JSON</button>
           <label class="rounded-xl border border-line py-3 text-[12px] hover:border-acc text-center cursor-pointer">Import JSON<input id="sImport" type="file" accept="application/json" class="hidden" /></label>
           <button id="sReset" class="rounded-xl border border-bad/50 text-bad py-3 text-[12px] hover:bg-bad/10">ล้างข้อมูลทั้งหมด</button>
+          <button onclick="window.logout()" class="col-span-2 rounded-xl border border-line py-3 text-[12px] hover:bg-card">ออกจากระบบ (Logout)</button>
         </div>
       </div>
     </div>
@@ -830,9 +861,11 @@
     const tdee = bmr * num(p.activity, 1.2);
     const pct = (GOALS[p.goal] || GOALS.cut20).pct;
     const target = tdee * (1 - pct);
-    const protein = w * num(p.proteinPerKg, 2.2);                    // 2.0–2.2 g/kg
-    const fat = (target * (num(p.fatPct, 25) / 100)) / 9;             // 20–25% kcal
-    const carbs = Math.max(0, (target - protein * 4 - fat * 9) / 4);  // remainder
+    let protein, fat, carbs;
+    if (p.dietType === 'keto') { protein = (target * 0.20) / 4; fat = (target * 0.75) / 9; carbs = (target * 0.05) / 4; }
+    else if (p.dietType === 'highcarb') { protein = (target * 0.20) / 4; fat = (target * 0.20) / 9; carbs = (target * 0.60) / 4; }
+    else if (p.dietType === 'lowcarb') { protein = (target * 0.40) / 4; fat = (target * 0.40) / 9; carbs = (target * 0.20) / 4; }
+    else { protein = (target * 0.30) / 4; fat = (target * 0.30) / 9; carbs = (target * 0.40) / 4; }
     const fiber = (target / 1000) * 14;                               // 14 g / 1,000 kcal
     return { bmr, tdee, pct, target, protein, fat, carbs, fiber, sodium: SODIUM_LIMIT };
   }
@@ -1485,17 +1518,17 @@
   function segBind(id, key, parse = (x) => x) {
     $('#' + id).addEventListener('click', (e) => { const b = e.target.closest('[data-v]'); if (!b) return; draft[key] = parse(b.dataset.v); syncProfileForm(); });
   }
-  segBind('pSex', 'sex'); segBind('pGoal', 'goal'); segBind('pProt', 'proteinPerKg', Number);
+  segBind('pSex', 'sex'); segBind('pGoal', 'goal'); segBind('pDiet', 'dietType');
   function syncProfileForm(fill = false) {
     if (fill) {
       $('#pName').value = draft.name || ''; $('#pAge').value = draft.age; $('#pHeight').value = draft.height; $('#pWeight').value = draft.weight;
-      $('#pGoalW').value = num(draft.goalWeight) > 0 ? draft.goalWeight : ''; $('#pActivity').value = String(draft.activity); $('#pFat').value = draft.fatPct;
+      $('#pGoalW').value = num(draft.goalWeight) > 0 ? draft.goalWeight : ''; $('#pActivity').value = String(draft.activity);
     }
     $('#pGoalW').placeholder = `แนะนำ ${fmt(defaultGoalWeight(draft, num(draft.weight)), 1)} kg`;
     $$('#pSex [data-v]').forEach((b) => b.classList.toggle('on', b.dataset.v === draft.sex));
     $$('#pGoal [data-v]').forEach((b) => b.classList.toggle('on', b.dataset.v === draft.goal));
-    $$('#pProt [data-v]').forEach((b) => b.classList.toggle('on', Number(b.dataset.v) === Number(draft.proteinPerKg)));
-    $('#pFatLbl').textContent = draft.fatPct + '%';
+    $$('#pDiet [data-v]').forEach((b) => b.classList.toggle('on', b.dataset.v === draft.dietType));
+    
     const c = calc(draft);
     $('#cvBmr').textContent = fmt(c.bmr); $('#cvTdee').textContent = fmt(c.tdee); $('#cvTarget').textContent = fmt(c.target);
     $('#cvP').textContent = fmt(c.protein) + 'g'; $('#cvF').textContent = fmt(c.fat) + 'g'; $('#cvC').textContent = fmt(c.carbs) + 'g'; $('#cvFb').textContent = fmt(c.fiber) + 'g';
@@ -1506,12 +1539,12 @@
     const pb = bodyParams(draft, num(draft.weight, 70));
     $('#pPreview').innerHTML = charSVG(pb, { uid: 'pv', tier: 0 });
   }
-  ['pName', 'pAge', 'pHeight', 'pWeight', 'pGoalW', 'pActivity', 'pFat'].forEach((id) => {
+  ['pName', 'pAge', 'pHeight', 'pWeight', 'pGoalW', 'pActivity'].forEach((id) => {
     $('#' + id).addEventListener('input', () => {
       draft.name = $('#pName').value.trim();
       draft.age = num($('#pAge').value, draft.age); draft.height = num($('#pHeight').value, draft.height); draft.weight = num($('#pWeight').value, draft.weight);
       draft.goalWeight = num($('#pGoalW').value) > 0 ? num($('#pGoalW').value) : null;
-      draft.activity = Number($('#pActivity').value); draft.fatPct = Number($('#pFat').value);
+      draft.activity = Number($('#pActivity').value);
       syncProfileForm();
     });
   });
