@@ -178,35 +178,70 @@
 
           <!-- Avatar Display -->
           <div class="flex justify-center items-end mt-4 mb-4 relative z-10 h-48">
-             <!-- Pure CSS / SVG Hiker to replace the floating head -->
-             <svg viewBox="0 0 200 200" class="w-40 h-40 drop-shadow-2xl">
+             <!-- Premium Replica SVG of the Trail Walker -->
+             <svg viewBox="0 0 200 200" class="w-48 h-48 drop-shadow-2xl">
+                <!-- Background Mountains & Stars -->
+                <path d="M0 200 L50 120 L100 200 Z" fill="#1e1e2d" opacity="0.6"/>
+                <path d="M70 200 L130 90 L200 200 Z" fill="#181825" opacity="0.8"/>
+                <circle cx="30" cy="50" r="1.5" fill="#ffffff" opacity="0.5"/>
+                <circle cx="170" cy="40" r="1" fill="#ffffff" opacity="0.3"/>
+                <circle cx="140" cy="80" r="2" fill="#ffffff" opacity="0.2"/>
+
                 <!-- Tent -->
-                <path d="M150 160 L180 160 L165 130 Z" fill="#eab308" stroke="#ca8a04" stroke-width="2" stroke-linejoin="round"/>
-                <path d="M165 130 L150 160 L165 160 Z" fill="#fef08a"/>
+                <path d="M140 180 L160 130 L180 180 Z" fill="#eab308"/>
+                <path d="M160 130 L150 180 L160 180 Z" fill="#fef08a"/>
+                
                 <!-- Campfire -->
-                <path d="M130 155 Q135 140 140 155" fill="#ef4444"/>
-                <path d="M133 155 Q135 145 137 155" fill="#f59e0b"/>
-                <rect x="125" y="155" width="30" height="5" fill="#78350f" rx="2"/>
-                <!-- Hiker Body -->
-                <rect x="65" y="110" width="30" height="40" fill="#3b82f6" rx="10"/> <!-- Jacket -->
-                <rect x="70" y="150" width="8" height="30" fill="#1e293b"/> <!-- Leg L -->
-                <rect x="82" y="150" width="8" height="30" fill="#1e293b"/> <!-- Leg R -->
-                <rect x="68" y="178" width="12" height="6" fill="#451a03" rx="2"/> <!-- Shoe L -->
-                <rect x="80" y="178" width="12" height="6" fill="#451a03" rx="2"/> <!-- Shoe R -->
-                <rect x="58" y="115" width="8" height="30" fill="#2563eb" rx="4"/> <!-- Arm L -->
-                <rect x="94" y="115" width="8" height="30" fill="#2563eb" rx="4"/> <!-- Arm R -->
-                <circle cx="62" cy="145" r="4" fill="#fcd34d"/> <!-- Hand L -->
-                <circle cx="98" cy="145" r="4" fill="#fcd34d"/> <!-- Hand R -->
-                <rect x="100" y="115" width="2" height="70" fill="#d4d4d8"/> <!-- Walking Stick -->
-                <!-- Hiker Head -->
-                <circle cx="80" cy="95" r="15" fill="#fde68a"/> <!-- Face -->
-                <path d="M65 95 Q80 75 95 95" fill="#ea580c"/> <!-- Beanie -->
-                <circle cx="80" cy="75" r="5" fill="#fed7aa"/> <!-- Beanie Pom -->
-                <circle cx="75" cy="92" r="2" fill="#1e293b"/> <!-- Eye L -->
-                <circle cx="85" cy="92" r="2" fill="#1e293b"/> <!-- Eye R -->
-                <path d="M75 100 Q80 105 85 100" stroke="#1e293b" stroke-width="1.5" fill="none"/> <!-- Smile -->
+                <path d="M115 175 Q120 155 125 175" fill="#ef4444"/>
+                <path d="M118 175 Q120 160 122 175" fill="#f59e0b"/>
+                <rect x="110" y="175" width="30" height="5" fill="#451a03" rx="2.5"/>
+
                 <!-- Backpack -->
-                <rect x="55" y="110" width="10" height="35" fill="#047857" rx="3"/>
+                <rect x="65" y="100" width="40" height="45" fill="#0f766e" rx="8"/>
+                <rect x="60" y="110" width="10" height="25" fill="#0d9488" rx="4"/>
+
+                <!-- Character Legs -->
+                <rect x="75" y="150" width="12" height="25" fill="#1e293b"/>
+                <rect x="95" y="150" width="12" height="25" fill="#1e293b"/>
+                
+                <!-- Character Shoes -->
+                <path d="M 70 175 C 70 170, 87 170, 87 175 Z" fill="#78350f"/>
+                <path d="M 90 175 C 90 170, 107 170, 107 175 Z" fill="#78350f"/>
+
+                <!-- Character Body (Blue Coat) -->
+                <rect x="68" y="105" width="46" height="50" fill="#3b82f6" rx="12"/>
+                <path d="M 68 150 L 114 150 L 114 155 C 114 158, 68 158, 68 155 Z" fill="#2563eb"/> <!-- coat trim -->
+
+                <!-- Red Scarf -->
+                <rect x="74" y="98" width="34" height="12" fill="#ef4444" rx="6"/>
+                <rect x="95" y="105" width="10" height="25" fill="#dc2626" rx="4"/>
+
+                <!-- Character Arms -->
+                <rect x="62" y="110" width="12" height="35" fill="#2563eb" rx="6"/>
+                <rect x="108" y="110" width="12" height="35" fill="#2563eb" rx="6"/>
+                
+                <!-- Character Hands (Gloves) -->
+                <circle cx="68" cy="145" r="6" fill="#fcd34d"/>
+                <circle cx="114" cy="145" r="6" fill="#fcd34d"/>
+
+                <!-- Walking Stick -->
+                <rect x="112" y="110" width="4" height="70" fill="#cbd5e1" rx="2"/>
+
+                <!-- Character Head -->
+                <circle cx="91" cy="78" r="18" fill="#fde68a"/> <!-- Face -->
+                
+                <!-- Beanie Hat -->
+                <path d="M 73 78 C 73 55, 109 55, 109 78 Z" fill="#f97316"/>
+                <rect x="71" y="75" width="40" height="8" fill="#ea580c" rx="4"/> <!-- Beanie Rim -->
+                <circle cx="91" cy="55" r="6" fill="#fef08a"/> <!-- Beanie Pom -->
+
+                <!-- Face Details -->
+                <circle cx="85" cy="80" r="2.5" fill="#1e293b"/> <!-- Eye -->
+                <circle cx="97" cy="80" r="2.5" fill="#1e293b"/> <!-- Eye -->
+                <path d="M 87 87 Q 91 91 95 87" stroke="#1e293b" stroke-width="2" stroke-linecap="round" fill="none"/> <!-- Smile -->
+                <circle cx="80" cy="84" r="3" fill="#fca5a5" opacity="0.6"/> <!-- Blush -->
+                <circle cx="102" cy="84" r="3" fill="#fca5a5" opacity="0.6"/> <!-- Blush -->
+
              </svg>
           </div>
 
@@ -606,3 +641,5 @@
 <!-- cache bust v19 -->
 
 <!-- cache bust v20 -->
+
+<!-- cache bust v21 -->
