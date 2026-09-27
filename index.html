@@ -8,103 +8,39 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&family=Prompt:wght@400;600&display=swap" rel="stylesheet">
   
   <style>
-    :root {
-      --bg-dark: #121c26;
-      --bg-card: rgba(18, 28, 38, 0.85);
-      --accent: #f0932b;
-      --accent-hover: #ffbe76;
-      --text-main: #f5f6fa;
-    }
-    body {
-      margin: 0; padding: 0;
-      font-family: 'Prompt', 'Nunito', sans-serif;
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      overflow: hidden; /* Prevent scrolling on main screen */
-      touch-action: manipulation;
-    }
-    .app-container {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      background-image: url('assets/bg.jpg');
-      background-size: cover;
-      background-position: center bottom;
-    }
-    .app-overlay {
-      position: absolute; inset: 0;
-      background: linear-gradient(to bottom, rgba(18, 28, 38, 0.4) 0%, rgba(18, 28, 38, 0.1) 40%, rgba(18, 28, 38, 0.8) 100%);
-    }
-
-    /* Glass UI */
-    .glass-panel {
-      background: var(--bg-card);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 24px;
-    }
-
-    /* SVG Character Animation */
-    #torso {
-      transform-origin: center;
-      transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy transition */
-    }
-
-    /* Modals */
-    .modal-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(5px);
-      display: flex; align-items: flex-end; justify-content: center;
-      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-      z-index: 50;
-    }
-    .modal-overlay.active { opacity: 1; pointer-events: auto; }
-    .modal-content {
-      width: 100%; max-width: 500px;
-      background: var(--bg-dark);
-      border-top-left-radius: 32px; border-top-right-radius: 32px;
-      padding: 24px; max-height: 85vh; overflow-y: auto;
-      transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-      box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
-    }
-    .modal-overlay.active .modal-content { transform: translateY(0); }
-
-    /* Inputs & Buttons */
-    .input-cozy {
-      width: 100%; padding: 12px 16px; border-radius: 16px;
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-      color: white; font-family: inherit; margin-bottom: 16px; outline: none;
-    }
-    .input-cozy:focus { border-color: var(--accent); }
-    .btn-cozy {
-      width: 100%; padding: 14px; border-radius: 20px;
-      background: var(--accent); color: #fff; font-weight: 600; font-size: 16px;
-      border: none; cursor: pointer; transition: background 0.2s, transform 0.1s;
-    }
-    .btn-cozy:active { transform: scale(0.97); }
+    :root { --bg-dark: #121c26; --bg-card: rgba(18, 28, 38, 0.85); --accent: #f0932b; --text-main: #f5f6fa; }
+    body { margin: 0; padding: 0; font-family: 'Prompt', 'Nunito', sans-serif; background-color: var(--bg-dark); color: var(--text-main); overflow: hidden; touch-action: manipulation; }
+    .app-container { position: relative; width: 100vw; height: 100vh; background-image: url('assets/bg.jpg'); background-size: cover; background-position: center bottom; }
+    .app-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(18, 28, 38, 0.3) 0%, rgba(18, 28, 38, 0.1) 40%, rgba(18, 28, 38, 0.95) 100%); }
+    .glass-panel { background: var(--bg-card); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; }
     
-    /* Bottom Nav Bar */
-    .bottom-nav {
-      position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-      display: flex; gap: 16px; align-items: center; justify-content: center;
-      z-index: 10;
-    }
-    .nav-btn {
-      width: 54px; height: 54px; border-radius: 27px;
-      background: var(--bg-card); display: flex; align-items: center; justify-content: center;
-      font-size: 24px; border: 1px solid rgba(255,255,255,0.15); cursor: pointer;
-      backdrop-filter: blur(10px); color: white;
-    }
-    .nav-btn.main {
-      width: 72px; height: 72px; border-radius: 36px; background: var(--accent);
-      font-size: 32px; box-shadow: 0 8px 24px rgba(240, 147, 43, 0.4); border: none;
+    /* Character Journey Animation */
+    #journeyCharacter {
+      position: absolute; left: 50%; transform: translateX(-50%);
+      transition: bottom 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 10; width: 150px; height: 150px;
     }
     
+    /* Bottom UI */
+    .bottom-ui { position: absolute; bottom: 0; left: 0; right: 0; padding: 0 16px 32px 16px; z-index: 20; }
     .macro-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1); overflow: hidden; margin-top: 4px; }
     .macro-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
+    
+    /* Modals */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 50; }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-content { width: 100%; max-width: 500px; background: var(--bg-dark); border-top-left-radius: 32px; border-top-right-radius: 32px; padding: 24px 24px 40px 24px; max-height: 85vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.4s; box-shadow: 0 -10px 40px rgba(0,0,0,0.5); }
+    .modal-overlay.active .modal-content { transform: translateY(0); }
+    
+    .input-cozy { width: 100%; padding: 12px 16px; border-radius: 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; font-family: inherit; margin-bottom: 16px; outline: none; }
+    .btn-cozy { width: 100%; padding: 14px; border-radius: 20px; background: var(--accent); color: #fff; font-weight: 600; font-size: 16px; border: none; cursor: pointer; transition: transform 0.1s; }
+    .btn-cozy:active { transform: scale(0.97); }
+    
+    /* Nav Buttons */
+    .nav-btn { width: 54px; height: 54px; border-radius: 27px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 24px; border: 1px solid rgba(255,255,255,0.15); cursor: pointer; backdrop-filter: blur(10px); }
+    .nav-btn.main { width: 72px; height: 72px; border-radius: 36px; background: var(--accent); font-size: 32px; box-shadow: 0 8px 24px rgba(240, 147, 43, 0.4); border: none; }
   </style>
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 </head>
 <body>
 
@@ -112,9 +48,9 @@
     <div class="app-overlay"></div>
 
     <!-- Top Stats -->
-    <div class="absolute top-8 left-0 right-0 px-6 flex justify-between items-start z-10">
+    <div class="absolute top-10 left-0 right-0 px-6 flex justify-between items-start z-10">
       <div class="glass-panel px-5 py-3 shadow-lg">
-        <div class="text-xs text-gray-300 mb-1">แคลอรี่ที่ทานได้ (KCAL)</div>
+        <div class="text-xs text-gray-300 mb-1">แคลอรี่คงเหลือ (KCAL)</div>
         <div class="text-3xl font-bold font-nunito tracking-tight text-white"><span id="dispRemain">0</span></div>
         <div class="text-[10px] text-gray-400 mt-1">เป้าหมาย: <span id="dispTarget">0</span></div>
       </div>
@@ -127,61 +63,43 @@
       </div>
     </div>
 
-    <!-- SVG Character -->
-    <div class="absolute bottom-[160px] left-1/2 -translate-x-1/2 z-10">
-      <!-- Shadow -->
-      <div class="w-32 h-6 bg-black/40 rounded-full blur-md absolute -bottom-2 left-1/2 -translate-x-1/2"></div>
-      
-      <!-- The Hiker -->
-      <svg width="180" height="280" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg" class="relative">
-        <!-- Back Arm -->
-        <rect x="135" y="110" width="18" height="70" rx="9" fill="#f5cdb0" transform="rotate(-15 135 110)" />
-        <rect x="135" y="110" width="18" height="40" rx="5" fill="#c0392b" transform="rotate(-15 135 110)" /> <!-- Sleeve -->
-
-        <!-- Legs -->
-        <rect x="75" y="200" width="22" height="75" rx="11" fill="#2c3e50" />
-        <rect x="105" y="200" width="22" height="75" rx="11" fill="#2c3e50" />
-        
-        <!-- Shoes -->
-        <path d="M 65 275 Q 86 265 97 275 L 97 290 L 65 290 Z" fill="#8e44ad" />
-        <path d="M 95 275 Q 116 265 127 275 L 127 290 L 95 290 Z" fill="#8e44ad" />
-
-        <!-- Torso (Belly) - THIS WILL SCALE -->
-        <g id="torso" style="transform: scaleX(1.2);">
-          <!-- Backpack peeking -->
-          <rect x="50" y="90" width="40" height="110" rx="20" fill="#27ae60" />
-          
-          <!-- Body -->
-          <ellipse cx="100" cy="150" rx="45" ry="60" fill="#e74c3c" />
-          <!-- Jacket detail -->
-          <path d="M 100 90 L 100 210" stroke="#c0392b" stroke-width="4" />
-        </g>
-
-        <!-- Head -->
-        <circle cx="100" cy="65" r="32" fill="#f5cdb0" />
-        <!-- Beanie Hat -->
-        <path d="M 66 60 Q 100 10 134 60 Z" fill="#f39c12" />
-        <circle cx="100" cy="18" r="10" fill="#f1c40f" />
-        <!-- Face -->
-        <circle cx="85" cy="65" r="3" fill="#2c3e50" />
-        <circle cx="115" cy="65" r="3" fill="#2c3e50" />
-        <path d="M 95 75 Q 100 82 105 75" fill="none" stroke="#2c3e50" stroke-width="2" stroke-linecap="round"/>
-        <!-- Blush -->
-        <ellipse cx="75" cy="70" rx="5" ry="3" fill="#ff7675" opacity="0.6"/>
-        <ellipse cx="125" cy="70" rx="5" ry="3" fill="#ff7675" opacity="0.6"/>
-
-        <!-- Front Arm -->
-        <rect x="65" y="110" width="20" height="70" rx="10" fill="#f5cdb0" transform="rotate(10 65 110)" />
-        <rect x="65" y="110" width="20" height="40" rx="6" fill="#e74c3c" transform="rotate(10 65 110)" /> <!-- Sleeve -->
-      </svg>
+    <!-- High Quality Animated Character via Lottie -->
+    <div id="journeyCharacter" style="bottom: 250px;">
+      <!-- Lottie hiking/walking animation (Free URL) -->
+      <lottie-player src="https://lottie.host/8074d209-7717-4f6c-b3a5-24c6e932ecbe/U59uH8wU1D.json" background="transparent" speed="1" style="width: 150px; height: 150px;" loop autoplay></lottie-player>
+      <!-- Small marker showing weight progress -->
+      <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-mono font-bold whitespace-nowrap border border-white/30 shadow-lg">
+        <span id="charWeightLabel">85.0 kg</span>
+      </div>
     </div>
 
-    <!-- Bottom Navigation -->
-    <div class="bottom-nav">
-      <button class="nav-btn" onclick="openModal('historyModal')">📓</button>
-      <button class="nav-btn main" onclick="openScanner()">📸</button>
-      <button class="nav-btn" onclick="openModal('weightModal')">⚖️</button>
-      <button class="nav-btn" onclick="openModal('profileModal')">⚙️</button>
+    <!-- Bottom UI (Macros + Navigation) -->
+    <div class="bottom-ui">
+      <!-- Main Dashboard Macros -->
+      <div class="glass-panel p-4 mb-4">
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <div class="flex justify-between text-[10px] mb-1"><span class="text-[#3498db] font-bold">PRO</span><span id="mPro">0g</span></div>
+            <div class="macro-bar"><div class="macro-fill bg-[#3498db]" id="barPro" style="width:0%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-[10px] mb-1"><span class="text-[#e67e22] font-bold">CARB</span><span id="mCarb">0g</span></div>
+            <div class="macro-bar"><div class="macro-fill bg-[#e67e22]" id="barCarb" style="width:0%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-[10px] mb-1"><span class="text-[#e74c3c] font-bold">FAT</span><span id="mFat">0g</span></div>
+            <div class="macro-bar"><div class="macro-fill bg-[#e74c3c]" id="barFat" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="flex gap-4 items-center justify-center">
+        <button class="nav-btn" onclick="openModal('historyModal')">📓</button>
+        <button class="nav-btn main" onclick="openScanner()">📸</button>
+        <button class="nav-btn" onclick="openModal('weightModal')">⚖️</button>
+        <button class="nav-btn" onclick="openModal('profileModal')">⚙️</button>
+      </div>
     </div>
 
   </div>
@@ -195,25 +113,16 @@
         <h2 class="text-xl font-bold">บันทึกมื้ออาหาร 📸</h2>
         <button class="text-gray-400 text-2xl leading-none" onclick="closeModal('scanModal')">&times;</button>
       </div>
-
       <div class="mb-4">
         <label class="block text-sm text-gray-300 mb-2">เลือกมื้ออาหาร</label>
-        <select id="s-meal" class="input-cozy mb-4">
-          <option value="breakfast">🌅 อาหารเช้า</option>
-          <option value="lunch">☀️ อาหารกลางวัน</option>
-          <option value="dinner">🌙 อาหารเย็น</option>
-          <option value="snack">🍩 ของว่าง</option>
-        </select>
-
+        <select id="s-meal" class="input-cozy mb-4"><option value="breakfast">🌅 อาหารเช้า</option><option value="lunch">☀️ อาหารกลางวัน</option><option value="dinner">🌙 อาหารเย็น</option><option value="snack">🍩 ของว่าง</option></select>
         <label for="foodImg" class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-500 rounded-2xl cursor-pointer hover:bg-white/5 transition mb-2">
-          <span class="text-3xl mb-2">📷</span>
-          <span class="text-sm text-gray-400">แตะเพื่ออัปโหลดหลายรูปได้</span>
+          <span class="text-3xl mb-2">📷</span><span class="text-sm text-gray-400">แตะเพื่ออัปโหลดหลายรูปได้</span>
           <input type="file" id="foodImg" class="hidden" accept="image/*" multiple>
         </label>
         <div id="scanPreviewContainer" class="flex gap-2 mt-2 overflow-x-auto pb-2"></div>
       </div>
-
-      <button class="btn-cozy mt-2" id="btnAnalyze" onclick="executeScan()">บันทึกและสกัดข้อมูลโภชนาการ</button>
+      <button class="btn-cozy mt-2" id="btnAnalyze" onclick="executeScan()">บันทึกและสกัดข้อมูล</button>
     </div>
   </div>
 
@@ -224,39 +133,19 @@
         <h2 class="text-xl font-bold">อัปเดตน้ำหนัก ⚖️</h2>
         <button class="text-gray-400 text-2xl leading-none" onclick="closeModal('weightModal')">&times;</button>
       </div>
-      <p class="text-sm text-gray-300 mb-6">น้ำหนักลดลง ตัวละครของคุณจะผอมลงตามไปด้วย!</p>
-      
-      <label class="block text-sm text-gray-300 mb-2">น้ำหนักวันนี้ (กิโลกรัม)</label>
-      <input type="number" id="w-current" class="input-cozy text-2xl text-center font-bold" placeholder="85.0" step="0.1">
-      
+      <p class="text-sm text-gray-300 mb-6 text-center">ยิ่งน้ำหนักลด ตัวละครจะยิ่งเดินลึกเข้าไปในป่า!</p>
+      <input type="number" id="w-current" class="input-cozy text-3xl text-center font-bold font-nunito" placeholder="85.0" step="0.1">
       <button class="btn-cozy mt-4" onclick="saveWeight()">บันทึกน้ำหนัก</button>
     </div>
   </div>
 
-  <!-- History & Macros Modal -->
+  <!-- History Modal -->
   <div class="modal-overlay" id="historyModal">
     <div class="modal-content">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-bold">ประวัติวันนี้ 📓</h2>
         <button class="text-gray-400 text-2xl leading-none" onclick="closeModal('historyModal')">&times;</button>
       </div>
-      
-      <!-- Macro Progress -->
-      <div class="grid grid-cols-2 gap-4 mb-6 bg-white/5 p-4 rounded-2xl border border-white/10">
-        <div>
-          <div class="flex justify-between text-xs mb-1"><span class="text-[#3498db]">โปรตีน</span><span id="mPro">0/0g</span></div>
-          <div class="macro-bar"><div class="macro-fill bg-[#3498db]" id="barPro" style="width:0%"></div></div>
-        </div>
-        <div>
-          <div class="flex justify-between text-xs mb-1"><span class="text-[#e67e22]">คาร์บ</span><span id="mCarb">0/0g</span></div>
-          <div class="macro-bar"><div class="macro-fill bg-[#e67e22]" id="barCarb" style="width:0%"></div></div>
-        </div>
-        <div>
-          <div class="flex justify-between text-xs mb-1"><span class="text-[#e74c3c]">ไขมัน</span><span id="mFat">0/0g</span></div>
-          <div class="macro-bar"><div class="macro-fill bg-[#e74c3c]" id="barFat" style="width:0%"></div></div>
-        </div>
-      </div>
-
       <div id="mealLogsContainer" class="space-y-4"></div>
     </div>
   </div>
@@ -264,40 +153,23 @@
   <!-- Profile Modal -->
   <div class="modal-overlay" id="profileModal">
     <div class="modal-content">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold">เป้าหมายการเดินทาง 🏕️</h2>
-        <button class="text-gray-400 text-2xl leading-none" onclick="closeModal('profileModal')">&times;</button>
-      </div>
-
+      <div class="flex justify-between items-center mb-6"><h2 class="text-xl font-bold">ตั้งเป้าหมาย 🏕️</h2><button class="text-gray-400 text-2xl leading-none" onclick="closeModal('profileModal')">&times;</button></div>
       <div class="grid grid-cols-2 gap-3 mb-3">
+        <div><label class="block text-xs text-gray-400 mb-1">เริ่มแรก (kg)</label><input type="number" id="p-start-weight" class="input-cozy py-2" placeholder="90"></div>
+        <div><label class="block text-xs text-gray-400 mb-1">เป้าหมาย (kg)</label><input type="number" id="p-t-weight" class="input-cozy py-2"></div>
         <div><label class="block text-xs text-gray-400 mb-1">เพศ</label><select id="p-gen" class="input-cozy py-2"><option value="M">ชาย</option><option value="F">หญิง</option></select></div>
-        <div><label class="block text-xs text-gray-400 mb-1">อายุ</label><input type="number" id="p-age" class="input-cozy py-2" placeholder="25"></div>
-        <div><label class="block text-xs text-gray-400 mb-1">ส่วนสูง (cm)</label><input type="number" id="p-height" class="input-cozy py-2" placeholder="175"></div>
-        <div><label class="block text-xs text-gray-400 mb-1">กิจกรรม</label>
-          <select id="p-act" class="input-cozy py-2">
-            <option value="1.2">นั่งทำงาน (1.2)</option>
-            <option value="1.375">ขยับเบาๆ (1.375)</option>
-            <option value="1.55">ปานกลาง (1.55)</option>
-            <option value="1.725">หนัก (1.725)</option>
-          </select>
-        </div>
+        <div><label class="block text-xs text-gray-400 mb-1">อายุ</label><input type="number" id="p-age" class="input-cozy py-2"></div>
+        <div><label class="block text-xs text-gray-400 mb-1">ส่วนสูง (cm)</label><input type="number" id="p-height" class="input-cozy py-2"></div>
+        <div><label class="block text-xs text-gray-400 mb-1">กิจกรรม</label><select id="p-act" class="input-cozy py-2"><option value="1.2">นั่งทำงาน</option><option value="1.375">ขยับเบาๆ</option><option value="1.55">ปานกลาง</option><option value="1.725">หนัก</option></select></div>
       </div>
-
-      <div class="grid grid-cols-2 gap-3 mb-3">
-        <div><label class="block text-xs text-gray-400 mb-1">เป้าหมายน้ำหนัก (kg)</label><input type="number" id="p-t-weight" class="input-cozy py-2"></div>
-        <div><label class="block text-xs text-gray-400 mb-1">ระยะเวลา (เดือน)</label><input type="number" id="p-t-months" class="input-cozy py-2"></div>
+      <div class="mb-4">
+        <label class="block text-xs text-gray-400 mb-1">ระยะเวลาเป้าหมาย (เดือน)</label>
+        <input type="number" id="p-t-months" class="input-cozy py-2">
       </div>
-
       <div class="mb-6">
         <label class="block text-xs text-gray-400 mb-1">สไตล์การกิน</label>
-        <select id="p-diet" class="input-cozy py-2">
-          <option value="balanced">สมดุล (Balanced)</option>
-          <option value="highpro">เน้นโปรตีน (High Protein)</option>
-          <option value="lowcarb">ลดแป้ง (Low Carb)</option>
-          <option value="keto">คีโต (Keto)</option>
-        </select>
+        <select id="p-diet" class="input-cozy py-2"><option value="balanced">สมดุล (Balanced)</option><option value="highpro">เน้นโปรตีน (High Protein)</option><option value="lowcarb">ลดแป้ง (Low Carb)</option><option value="keto">คีโต (Keto)</option></select>
       </div>
-
       <button class="btn-cozy" onclick="saveProfile()">บันทึกเป้าหมาย</button>
     </div>
   </div>
@@ -307,40 +179,30 @@
     
     // STATE
     let pState = JSON.parse(localStorage.getItem('nj_profile2')) || {
-      g: 'M', a: 30, w: 85, h: 175, act: 1.2, tw: 75, tm: 3, diet: 'balanced', key: defaultKey
+      g: 'M', a: 30, sw: 90, w: 85, h: 175, act: 1.2, tw: 75, tm: 3, diet: 'balanced', key: defaultKey
     };
-    let appData = JSON.parse(localStorage.getItem('nj_data2')) || {};
+    if(!pState.sw) pState.sw = pState.w; // Migrate old data (start weight)
     
+    let appData = JSON.parse(localStorage.getItem('nj_data2')) || {};
     let activeDate = new Date();
     let activeDateStr = "";
 
-    function getDateStr(d) {
-      return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-    }
+    function getDateStr(d) { return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
     
     function changeDate(days) {
       activeDate.setDate(activeDate.getDate() + days);
       activeDateStr = getDateStr(activeDate);
-      
-      const todayStr = getDateStr(new Date());
-      let dText = (activeDateStr === todayStr) ? "วันนี้" : activeDate.toLocaleDateString('th-TH', {day:'numeric', month:'short'});
+      let dText = (activeDateStr === getDateStr(new Date())) ? "วันนี้" : activeDate.toLocaleDateString('th-TH', {day:'numeric', month:'short'});
       document.getElementById('dateDisplay').textContent = dText;
-      
       computeMetrics();
     }
 
     function calculateTargets() {
-      let bmr = (pState.g === 'M') 
-        ? (10 * pState.w) + (6.25 * pState.h) - (5 * pState.a) + 5
-        : (10 * pState.w) + (6.25 * pState.h) - (5 * pState.a) - 161;
+      let bmr = (pState.g === 'M') ? (10 * pState.w) + (6.25 * pState.h) - (5 * pState.a) + 5 : (10 * pState.w) + (6.25 * pState.h) - (5 * pState.a) - 161;
       let tdee = bmr * pState.act;
-      
-      let kgToLose = pState.w - pState.tw;
-      if (kgToLose < 0) kgToLose = 0;
-      let days = pState.tm * 30;
-      let dailyDeficit = (kgToLose * 7700) / (days || 90);
-      if (dailyDeficit > 1100) dailyDeficit = 1100; // Cap at ~1kg/week safe loss
-      
+      let kgToLose = pState.w - pState.tw; if (kgToLose < 0) kgToLose = 0;
+      let dailyDeficit = (kgToLose * 7700) / ((pState.tm || 3) * 30);
+      if (dailyDeficit > 1100) dailyDeficit = 1100;
       let targetCal = Math.round(tdee - dailyDeficit);
       
       let pro=0, carb=0, fat=0;
@@ -348,22 +210,17 @@
       else if(pState.diet === 'lowcarb') { pro = (targetCal*0.35)/4; fat = (targetCal*0.45)/9; carb = (targetCal*0.2)/4; }
       else if(pState.diet === 'keto') { carb = 30; pro = (targetCal*0.25)/4; fat = (targetCal - (carb*4 + pro*4))/9; }
       else { pro = (targetCal*0.3)/4; fat = (targetCal*0.3)/9; carb = (targetCal*0.4)/4; }
-
       return { cal: targetCal, pro: Math.round(pro), carb: Math.round(carb), fat: Math.round(fat) };
     }
 
     function computeMetrics() {
       if (!appData[activeDateStr]) appData[activeDateStr] = { breakfast:[], lunch:[], dinner:[], snack:[] };
       let dayData = appData[activeDateStr];
-      
       let cur = { cal:0, pro:0, carb:0, fat:0 };
-      ['breakfast','lunch','dinner','snack'].forEach(m => {
-        dayData[m].forEach(x => { cur.cal+=x.cal; cur.pro+=x.pro; cur.carb+=x.carb; cur.fat+=x.fat; });
-      });
+      ['breakfast','lunch','dinner','snack'].forEach(m => { dayData[m].forEach(x => { cur.cal+=x.cal; cur.pro+=x.pro; cur.carb+=x.carb; cur.fat+=x.fat; }); });
 
       let targets = calculateTargets();
       let remain = targets.cal - cur.cal;
-      
       document.getElementById('dispRemain').textContent = remain.toLocaleString();
       document.getElementById('dispRemain').style.color = remain < 0 ? '#e74c3c' : '#ffffff';
       document.getElementById('dispTarget').textContent = targets.cal.toLocaleString();
@@ -375,111 +232,66 @@
           document.getElementById(`m${id}`).textContent = `${Math.round(val)}/${tgt}g`;
         }
       };
-      setBar('Pro', cur.pro, targets.pro);
-      setBar('Carb', cur.carb, targets.carb);
-      setBar('Fat', cur.fat, targets.fat);
-
-      renderHistory(dayData);
-      updateAvatarSize();
+      setBar('Pro', cur.pro, targets.pro); setBar('Carb', cur.carb, targets.carb); setBar('Fat', cur.fat, targets.fat);
+      renderHistory(dayData); updateJourneyProgress();
     }
 
     function renderHistory(dayData) {
       const c = document.getElementById('mealLogsContainer');
-      const mealsConfig = [
-        { id: 'breakfast', icon: '🌅', name: 'อาหารเช้า' },
-        { id: 'lunch', icon: '☀️', name: 'กลางวัน' },
-        { id: 'dinner', icon: '🌙', name: 'เย็น' },
-        { id: 'snack', icon: '🍩', name: 'ของว่าง' }
-      ];
-
       let html = "";
-      mealsConfig.forEach(m => {
-        let arr = dayData[m.id];
-        let mealCal = arr.reduce((sum, item) => sum + item.cal, 0);
-        html += `<div class="bg-white/5 rounded-2xl p-4 mb-3 border border-white/10">
-            <div class="flex justify-between items-center mb-2">
-              <span class="font-bold text-sm">${m.icon} ${m.name}</span>
-              <span class="font-mono text-sm text-[#f0932b]">${mealCal} kcal</span>
-            </div>`;
-        if(arr.length === 0) {
-          html += `<div class="text-xs text-gray-500 italic">ยังไม่มีบันทึก</div>`;
-        } else {
-          arr.forEach((item, idx) => {
-            html += `<div class="flex justify-between items-center py-2 border-t border-white/10 mt-2">
-                <div>
-                  <div class="text-sm text-gray-200">${item.name}</div>
-                  <div class="text-[10px] text-gray-400 font-mono">P:${item.pro} C:${item.carb} F:${item.fat}</div>
-                </div>
-              </div>`;
-          });
-        }
+      [{ id: 'breakfast', icon: '🌅', name: 'อาหารเช้า' }, { id: 'lunch', icon: '☀️', name: 'กลางวัน' }, { id: 'dinner', icon: '🌙', name: 'เย็น' }, { id: 'snack', icon: '🍩', name: 'ของว่าง' }].forEach(m => {
+        let arr = dayData[m.id]; let mealCal = arr.reduce((sum, item) => sum + item.cal, 0);
+        html += `<div class="bg-white/5 rounded-2xl p-4 mb-3 border border-white/10"><div class="flex justify-between items-center mb-2"><span class="font-bold text-sm">${m.icon} ${m.name}</span><span class="font-mono text-sm text-[#f0932b]">${mealCal} kcal</span></div>`;
+        if(arr.length === 0) html += `<div class="text-xs text-gray-500 italic">ยังไม่มีบันทึก</div>`;
+        else arr.forEach(item => { html += `<div class="flex justify-between items-center py-2 border-t border-white/10 mt-2"><div><div class="text-sm text-gray-200">${item.name}</div><div class="text-[10px] text-gray-400 font-mono">P:${item.pro} C:${item.carb} F:${item.fat}</div></div><div class="text-xs font-mono text-gray-300">${item.cal}</div></div>`; });
         html += `</div>`;
       });
       if(c) c.innerHTML = html;
     }
 
-    // Dynamic Avatar Logic
-    function updateAvatarSize() {
-      // 1.0 = target weight (fit). 1.4 = max scale.
+    // JOURNEY ANIMATION: Move character up the screen based on weight loss progress
+    function updateJourneyProgress() {
+      let startW = pState.sw || pState.w;
       let currentW = pState.w;
       let targetW = pState.tw;
       
-      let scale = 1.0;
-      if (currentW > targetW) {
-        // For every 10kg over target, scale increases by 0.15
-        let diff = currentW - targetW;
-        scale = 1.0 + (diff * 0.015);
-      } else if (currentW < targetW) {
-         scale = 0.95; // slightly thinner if under target
-      }
+      document.getElementById('charWeightLabel').textContent = `${currentW} kg`;
       
-      // Cap scale between 0.8 and 1.8 for visual sanity
-      scale = Math.max(0.8, Math.min(scale, 1.8));
-      
-      const torso = document.getElementById('torso');
-      if(torso) {
-        torso.style.transform = `scaleX(${scale})`;
+      let progress = 0;
+      if (startW > targetW) {
+        progress = (startW - currentW) / (startW - targetW);
       }
+      // clamp 0 to 1
+      progress = Math.max(0, Math.min(progress, 1));
+      
+      // Bottom CSS value: 200px (start) to 60vh (finish)
+      let bottomPx = 180 + (progress * (window.innerHeight * 0.4));
+      document.getElementById('journeyCharacter').style.bottom = `${bottomPx}px`;
+      
+      // Scale down slightly as they walk away (perspective)
+      let scale = 1.0 - (progress * 0.3);
+      document.getElementById('journeyCharacter').style.transform = `translateX(-50%) scale(${scale})`;
     }
 
     // MODALS
     function openModal(id) { 
       if(id === 'profileModal') {
-        document.getElementById('p-gen').value = pState.g;
-        document.getElementById('p-age').value = pState.a;
-        document.getElementById('p-height').value = pState.h;
-        document.getElementById('p-act').value = pState.act;
-        document.getElementById('p-t-weight').value = pState.tw;
-        document.getElementById('p-t-months').value = pState.tm;
-        document.getElementById('p-diet').value = pState.diet;
+        document.getElementById('p-start-weight').value = pState.sw;
+        document.getElementById('p-gen').value = pState.g; document.getElementById('p-age').value = pState.a; document.getElementById('p-height').value = pState.h; document.getElementById('p-act').value = pState.act; document.getElementById('p-t-weight').value = pState.tw; document.getElementById('p-t-months').value = pState.tm; document.getElementById('p-diet').value = pState.diet;
       }
-      if(id === 'weightModal') {
-        document.getElementById('w-current').value = pState.w;
-      }
+      if(id === 'weightModal') document.getElementById('w-current').value = pState.w;
       document.getElementById(id).classList.add('active'); 
     }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
     
     function saveProfile() {
-      pState.g = document.getElementById('p-gen').value;
-      pState.a = Number(document.getElementById('p-age').value);
-      pState.h = Number(document.getElementById('p-height').value);
-      pState.act = Number(document.getElementById('p-act').value);
-      pState.tw = Number(document.getElementById('p-t-weight').value);
-      pState.tm = Number(document.getElementById('p-t-months').value);
-      pState.diet = document.getElementById('p-diet').value;
-      localStorage.setItem('nj_profile2', JSON.stringify(pState));
-      computeMetrics(); closeModal('profileModal');
+      pState.sw = Number(document.getElementById('p-start-weight').value) || pState.w;
+      pState.g = document.getElementById('p-gen').value; pState.a = Number(document.getElementById('p-age').value); pState.h = Number(document.getElementById('p-height').value); pState.act = Number(document.getElementById('p-act').value); pState.tw = Number(document.getElementById('p-t-weight').value); pState.tm = Number(document.getElementById('p-t-months').value); pState.diet = document.getElementById('p-diet').value;
+      localStorage.setItem('nj_profile2', JSON.stringify(pState)); computeMetrics(); closeModal('profileModal');
     }
-
     function saveWeight() {
       let newW = Number(document.getElementById('w-current').value);
-      if(newW > 0) {
-        pState.w = newW;
-        localStorage.setItem('nj_profile2', JSON.stringify(pState));
-        computeMetrics();
-        closeModal('weightModal');
-      }
+      if(newW > 0) { pState.w = newW; localStorage.setItem('nj_profile2', JSON.stringify(pState)); computeMetrics(); closeModal('weightModal'); }
     }
 
     // SCANNER
@@ -489,102 +301,37 @@
       Array.from(this.files).forEach(file => {
         const reader = new FileReader();
         reader.onload = e => {
-          const img = document.createElement('img');
-          img.src = e.target.result;
-          img.className = 'w-16 h-16 object-cover rounded-xl border border-white/20';
-          container.appendChild(img);
+          const img = document.createElement('img'); img.src = e.target.result; img.className = 'w-16 h-16 object-cover rounded-xl border border-white/20'; container.appendChild(img);
           b64Images.push(e.target.result.split(',')[1]);
         }
         reader.readAsDataURL(file);
       });
     });
-
-    function openScanner() {
-      document.getElementById('scanPreviewContainer').innerHTML = '';
-      b64Images = [];
-      document.getElementById('btnAnalyze').textContent = "บันทึกและสกัดข้อมูลโภชนาการ";
-      document.getElementById('btnAnalyze').disabled = false;
-      openModal('scanModal');
-    }
-
+    function openScanner() { document.getElementById('scanPreviewContainer').innerHTML = ''; b64Images = []; document.getElementById('btnAnalyze').textContent = "บันทึกและสกัดข้อมูล"; document.getElementById('btnAnalyze').disabled = false; openModal('scanModal'); }
     async function executeScan() {
-      if(b64Images.length === 0) return alert("กรุณาอัปโหลดรูปอาหารอย่างน้อย 1 รูป");
-      const btn = document.getElementById('btnAnalyze');
-      btn.disabled = true; btn.textContent = "กำลังสกัดข้อมูล...";
-      
-      const schemaObj = {
-        type: "ARRAY",
-        items: {
-          type: "OBJECT",
-          properties: {
-            dish_name: { type: "STRING" },
-            estimated_weight_g: { type: "INTEGER" },
-            hidden_oil_tbsp: { type: "NUMBER" },
-            nutritional_breakdown: {
-              type: "OBJECT",
-              properties: {
-                calories: { type: "INTEGER" },
-                macros: { type: "OBJECT", properties: { protein_g: { type: "INTEGER" }, fat_g: { type: "INTEGER" }, carbs_g: { type: "INTEGER" } } },
-                micros: { type: "OBJECT", properties: { fiber_g: { type: "INTEGER" }, sodium_mg: { type: "INTEGER" } } }
-              }
-            },
-            scientific_evaluation: {
-              type: "OBJECT",
-              properties: { mps_threshold_reached: { type: "BOOLEAN" }, satiety_index: { type: "STRING" }, actionable_tip: { type: "STRING" } }
-            }
-          }
-        }
-      };
-
+      if(b64Images.length === 0) return alert("กรุณาอัปโหลดรูปอาหาร");
+      const btn = document.getElementById('btnAnalyze'); btn.disabled = true; btn.textContent = "กำลังสกัดข้อมูล...";
+      const schemaObj = { type: "ARRAY", items: { type: "OBJECT", properties: { dish_name: { type: "STRING" }, estimated_weight_g: { type: "INTEGER" }, hidden_oil_tbsp: { type: "NUMBER" }, nutritional_breakdown: { type: "OBJECT", properties: { calories: { type: "INTEGER" }, macros: { type: "OBJECT", properties: { protein_g: { type: "INTEGER" }, fat_g: { type: "INTEGER" }, carbs_g: { type: "INTEGER" } } }, micros: { type: "OBJECT", properties: { fiber_g: { type: "INTEGER" }, sodium_mg: { type: "INTEGER" } } } } }, scientific_evaluation: { type: "OBJECT", properties: { mps_threshold_reached: { type: "BOOLEAN" }, satiety_index: { type: "STRING" }, actionable_tip: { type: "STRING" } } } } } };
       try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${pState.key}`;
-        
         const parts = [{ text: "You are a Thai elite sports nutritionist AI. Analyze the food images. Identify ALL distinct food dishes present. Answer in THAI language. Estimate macros accurately." }];
-        b64Images.forEach(imgData => {
-           parts.push({ inline_data: { mime_type: "image/jpeg", data: imgData } });
-        });
-
-        const req = {
-          contents: [{ parts: parts }],
-          generationConfig: { 
-            response_mime_type: "application/json",
-            response_schema: schemaObj
-          }
-        };
-
-        const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(req) });
+        b64Images.forEach(imgData => parts.push({ inline_data: { mime_type: "image/jpeg", data: imgData } }));
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${pState.key}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ parts: parts }], generationConfig: { response_mime_type: "application/json", response_schema: schemaObj } }) });
         const data = await response.json();
         if (response.ok) {
           const items = JSON.parse(data.candidates[0].content.parts[0].text);
           let mealType = document.getElementById('s-meal').value;
-          
-          items.forEach(item => {
-             appData[activeDateStr][mealType].push({
-                name: item.dish_name,
-                cal: item.nutritional_breakdown.calories,
-                pro: item.nutritional_breakdown.macros.protein_g,
-                carb: item.nutritional_breakdown.macros.carbs_g,
-                fat: item.nutritional_breakdown.macros.fat_g,
-                fib: item.nutritional_breakdown.micros.fiber_g,
-                sod: item.nutritional_breakdown.micros.sodium_mg
-             });
-          });
-          localStorage.setItem('nj_data2', JSON.stringify(appData));
-          computeMetrics();
-          
-          btn.textContent = "บันทึกสำเร็จ!";
-          setTimeout(() => closeModal('scanModal'), 800);
+          items.forEach(item => { appData[activeDateStr][mealType].push({ name: item.dish_name, cal: item.nutritional_breakdown.calories, pro: item.nutritional_breakdown.macros.protein_g, carb: item.nutritional_breakdown.macros.carbs_g, fat: item.nutritional_breakdown.macros.fat_g, fib: item.nutritional_breakdown.micros.fiber_g, sod: item.nutritional_breakdown.micros.sodium_mg }); });
+          localStorage.setItem('nj_data2', JSON.stringify(appData)); computeMetrics();
+          btn.textContent = "บันทึกสำเร็จ!"; setTimeout(() => closeModal('scanModal'), 800);
         } else throw new Error("API Error");
-      } catch (err) {
-        alert("การเชื่อมต่อล้มเหลว กรุณาลองใหม่อีกครั้ง");
-        btn.disabled = false; btn.textContent = "บันทึกและสกัดข้อมูลโภชนาการ";
-      }
+      } catch (err) { alert("การเชื่อมต่อล้มเหลว กรุณาลองใหม่อีกครั้ง"); btn.disabled = false; btn.textContent = "บันทึกและสกัดข้อมูล"; }
     }
 
-    // Init
-    changeDate(0); // Initialize date string and UI
+    changeDate(0);
     if(!pState.tw) openModal('profileModal');
   </script>
 </body>
 </html>
 <!-- cache bust v14 -->
+
+<!-- cache bust v15 -->
