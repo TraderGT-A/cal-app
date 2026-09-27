@@ -8,14 +8,18 @@ description: Rules and UI/UX guidelines for maintaining the Nutri Journal (CalAI
 This project is a high-end FinTech-style Nutrition Tracker (Single Page Application in `index.html`).
 
 ## 1. UI/UX Design System
-- **Theme**: "FinTech Trading Journal" style. Dark mode only. 
+- **Theme**: "Cozy Calorie Journey" (Focus Traveller style).
+- **Aesthetic**: Deep blue/teal night forest background, soft glassmorphism panels, friendly rounded typography.
 - **Colors**:
-  - Background: Matte Obsidian (`#0c0d12`) / Deep Charcoal (`#14141d` for cards).
-  - Borders: Hairline 1px `#252538`.
-  - Accents: Neon Purple (`#8b5cf6`), Emerald (`#10b981`), Red (`#ef4444`), Cyan (`#38bdf8`).
-- **Typography**: `Kanit` or `Prompt` for Thai, `Inter` or monospace for numbers and tech terms.
-- **Vibe**: Keep it feeling like a native, premium app. No raw JSON output, no raw markdown in UI. 
-- **NO "AI" Branding**: Hide all API keys, remove "Powered by Gemini" texts. Make it feel like magic. Button should say "บันทึกและสกัดข้อมูลโภชนาการ" instead of "วิเคราะห์ภาพด้วย AI".
+  - Background: Night Forest (`#121c26` or image).
+  - Cards: Translucent dark blue (`rgba(18, 28, 38, 0.85)`).
+  - Accents: Campfire Orange (`#f0932b`), Soft Blue (`#3498db`).
+- **Typography**: `Nunito` for numbers/headings, `Prompt` for Thai text.
+- **Vibe**: Friendly, gamified, non-stressful. No "AI" branding.
+- **Dynamic Avatar System**:
+  - Uses an inline SVG character (`<g id="torso">`).
+  - JS calculates `scaleX()` based on `currentWeight` vs `targetWeight`.
+  - The character's belly dynamically shrinks or expands based on weight logs!
 
 ## 2. Technical Stack
 - **Single File**: Everything (HTML, CSS via Tailwind CDN, JS) is in `index.html`.
