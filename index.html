@@ -193,7 +193,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getAuth, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     
     const app = initializeApp({
       apiKey: "AIzaSyDt8NzMO9TKV809ns665qyuhfotBleLywE",
@@ -204,7 +204,7 @@
     window.db = getFirestore(app); window.auth = getAuth(app); window.fsDoc = doc; window.fsSetDoc = setDoc; window.fsGetDoc = getDoc;
     window.googleProvider = new GoogleAuthProvider();
     
-    window.loginWithGoogle = () => signInWithPopup(window.auth, window.googleProvider).catch(e => alert(e.message));
+    window.loginWithGoogle = () => signInWithRedirect(window.auth, window.googleProvider).catch(e => alert(e.message));
     window.logout = () => signOut(window.auth).then(() => { localStorage.clear(); location.reload(); });
 
     let syncTimeout;
