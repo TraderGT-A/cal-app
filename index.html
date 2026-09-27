@@ -238,10 +238,7 @@
         </select>
       </div>
 
-      <div class="mb-6">
-        <label class="block text-xs text-textMuted mb-1 flex justify-between">Gemini API Key</label>
-        <input type="password" id="p-key" class="input-journal" placeholder="AIzaSy...">
-      </div>
+
 
       <button class="btn-primary" onclick="saveProfile()">บันทึก & คำนวณแผนใหม่</button>
     </div>
@@ -251,7 +248,7 @@
   <div class="modal-overlay" id="scanModal">
     <div class="modal-content">
       <div class="flex justify-between items-center mb-6">
-        <h2 class="text-lg font-bold">AI Food Scanner 📸</h2>
+        <h2 class="text-lg font-bold">บันทึกมื้ออาหาร 📸</h2>
         <button class="text-gray-400 text-xl" onclick="closeModal('scanModal')">&times;</button>
       </div>
 
@@ -272,8 +269,7 @@
         <img id="scanPreview" class="w-full h-40 object-cover rounded-xl hidden mt-2">
       </div>
 
-      <button class="btn-primary" id="btnAnalyze" onclick="executeScan()">วิเคราะห์โภชนาการ (Analyze)</button>
-      <button class="btn-demo" onclick="demoScan()">ทดสอบด้วยข้อมูล Demo (ไม่ใช้ API)</button>
+      <button class="btn-primary" id="btnAnalyze" onclick="executeScan()">บันทึกและสกัดข้อมูลโภชนาการ</button>
 
       <div id="scanResult" class="mt-4 hidden p-4 rounded-xl bg-appBg border border-hairline text-sm text-gray-300"></div>
     </div>
@@ -490,7 +486,6 @@
         document.getElementById('p-t-weight').value = pState.tw;
         document.getElementById('p-t-months').value = pState.tm;
         document.getElementById('p-diet').value = pState.diet;
-        document.getElementById('p-key').value = pState.key;
       }
       document.getElementById(id).classList.add('active'); 
     }
@@ -506,7 +501,7 @@
         tw: Number(document.getElementById('p-t-weight').value),
         tm: Number(document.getElementById('p-t-months').value),
         diet: document.getElementById('p-diet').value,
-        key: document.getElementById('p-key').value.trim() || defaultKey
+        key: defaultKey
       };
       localStorage.setItem('nj_profile2', JSON.stringify(pState));
       computeMetrics(); renderDashboard(); closeModal('profileModal');
@@ -568,18 +563,10 @@
       computeMetrics(); renderDashboard();
     }
 
-    function demoScan() {
-      processAiResult({
-        "dish_name": "ข้าวกะเพราไก่สับไข่ดาว", "estimated_weight_g": 350, "hidden_oil_tbsp": 1.5,
-        "nutritional_breakdown": { "calories": 580, "macros": { "protein_g": 32, "fat_g": 24, "carbs_g": 59 }, "micros": { "fiber_g": 2, "sodium_mg": 1200 } },
-        "scientific_evaluation": { "mps_threshold_reached": true, "satiety_index": "Moderate", "actionable_tip": "ระวังน้ำมันที่ใช้ผัดและโซเดียมจากน้ำปลา/ซีอิ๊ว" }
-      });
-    }
-
     async function executeScan() {
       if(!b64Img) return alert("กรุณาอัปโหลดรูปอาหารก่อน");
       const btn = document.getElementById('btnAnalyze');
-      btn.disabled = true; btn.textContent = "กำลังวิเคราะห์ด้วย Gemini Vision...";
+      btn.disabled = true; btn.textContent = "กำลังสกัดข้อมูลโภชนาการ...";
       
       const schema = `{"type":"object","properties":{"dish_name":{"type":"string"},"estimated_weight_g":{"type":"integer"},"hidden_oil_tbsp":{"type":"number"},"nutritional_breakdown":{"type":"object","properties":{"calories":{"type":"integer"},"macros":{"type":"object","properties":{"protein_g":{"type":"integer"},"fat_g":{"type":"integer"},"carbs_g":{"type":"integer"}}},"micros":{"type":"object","properties":{"fiber_g":{"type":"integer"},"sodium_mg":{"type":"integer"}}}}},"scientific_evaluation":{"type":"object","properties":{"mps_threshold_reached":{"type":"boolean"},"satiety_index":{"type":"string"},"actionable_tip":{"type":"string"}}}}}`;
       
@@ -595,11 +582,11 @@
         const data = await response.json();
         if (response.ok) {
           processAiResult(JSON.parse(data.candidates[0].content.parts[0].text));
-          btn.textContent = "วิเคราะห์สำเร็จ!";
+          btn.textContent = "บันทึกสำเร็จเรียบร้อย!";
         } else throw new Error("API Error");
       } catch (err) {
-        alert("การเชื่อมต่อล้มเหลว หรือ API Key ไม่ถูกต้อง");
-        btn.disabled = false; btn.textContent = "วิเคราะห์โภชนาการ (Analyze)";
+        alert("การเชื่อมต่อล้มเหลว กรุณาลองใหม่อีกครั้ง");
+        btn.disabled = false; btn.textContent = "บันทึกและสกัดข้อมูลโภชนาการ";
       }
     }
 
@@ -612,3 +599,5 @@
 </html>
 
 <!-- cache bust v9 -->
+
+<!-- cache bust v10 -->
