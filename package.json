@@ -1,12 +1,14 @@
 {
-  "name": "cal-app",
-  "version": "1.0.0",
-  "description": "Nutri Journal with Gemini API",
-  "scripts": {
-    "start": "node api/gemini.js"
-  },
-  "engines": {
-    "node": ">=20.0.0"
-  },
-  "dependencies": {}
+    "name":  "cal-app",
+    "version":  "1.0.0",
+    "description":  "Nutri Journal with Gemini API",
+    "scripts":  {
+                    "start":  "node api/gemini.js"
+                },
+    "engines":  {
+                    "node":  "\u003e=20.0.0"
+                },
+    "dependencies":  {
+                         "@vercel/kv":  "^1.0.1"
+                     }
 }
