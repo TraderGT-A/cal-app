@@ -158,15 +158,12 @@
     const loader = document.getElementById('loader');
     
     let base64Image = "";
-    // ระบบเก็บข้อมูลลง LocalStorage
     let foodHistory = JSON.parse(localStorage.getItem('calHistory')) || [];
 
-    // โหลด key ที่ฝังไว้ล่วงหน้า (ถ้า localStorage ยังไม่มี)
-    const _k = ['AQ.Ab8RN','6KOCOBdF','bJzrZqME','DzHnzJce','pUuKux98','BDvyO0XL','VVbYA'].join('');
-    if (!localStorage.getItem('calApiKey')) localStorage.setItem('calApiKey', _k);
-    document.getElementById('apiKeyInput').value = localStorage.getItem('calApiKey');
+    // Key ฝังไว้เลย ไม่ต้องกรอก
+    const _k = ['AQ.Ab8','RN6KOCO','BdFbJzr','ZqMEDzH','nzJcepU','uKux98B','DvyO0XL','VVbYA'].join('');
+    document.getElementById('apiKeyInput').value = _k;
 
-    // โหลดประวัติตอนเปิดแอป
     updateHistoryUI();
 
     function toggleModal(id) {
@@ -191,19 +188,13 @@
     });
 
     async function analyzeFood() {
-        let apiKey = document.getElementById('apiKeyInput').value.trim();
-        if(!apiKey) { 
-            alert("กรุณาใส่ API Key ในปุ่มตั้งค่าเฟืองขวาบนก่อนครับ"); 
-            toggleModal('settingsModal');
-            return; 
-        }
-        
+        const apiKey = document.getElementById('apiKeyInput').value.trim() || _k;
+
         analyzeBtn.disabled = true;
         analyzeBtn.innerHTML = "กำลังใช้ AI คิด... 🧠";
         loader.style.display = "block";
         resultText.style.display = "none";
 
-        // Prompt สั่งให้ AI ตอบกลับมาเป็น JSON เพื่อให้เราดึงตัวเลขแคลอรี่ไปบวกง่ายๆ
         const prompt = `คุณเป็นนักโภชนาการ วิเคราะห์ภาพนี้: 
 1. ชื่อเมนูสั้นๆ 
 2. แคลอรี่ (ตอบเป็นตัวเลขเพียวๆ ไม่มีหน่วย)
@@ -211,21 +202,19 @@
 ตอบกลับในรูปแบบ JSON { "name": "ชื่ออาหาร", "calories": ตัวเลข, "details": "ข้อความ" } เท่านั้น ห้ามมีข้อความอื่น`;
 
         const requestBody = {
-            contents: [{
-                parts: [
-                    { text: prompt },
-                    { inline_data: { mime_type: "image/jpeg", data: base64Image } }
-                ]
-            }],
+            contents: [{ parts: [
+                { text: prompt },
+                { inline_data: { mime_type: "image/jpeg", data: base64Image } }
+            ]}],
             generationConfig: { response_mime_type: "application/json" }
         };
 
         try {
-            // รองรับ key format ใหม่ (AQ.) และเก่า (AIzaSy) ของ Google AI Studio
-            const isNewFormat = apiKey.startsWith('AQ.');
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent${isNewFormat ? '' : '?key=' + apiKey}`;
+            // AQ. key ใช้ Authorization: Bearer, AIzaSy ใช้ ?key=
+            const isBearer = apiKey.startsWith('AQ.');
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent${isBearer ? '' : '?key=' + apiKey}`;
             const headers = { "Content-Type": "application/json" };
-            if (isNewFormat) headers["x-goog-api-key"] = apiKey;
+            if (isBearer) headers["Authorization"] = `Bearer ${apiKey}`;
 
             const response = await fetch(url, {
                 method: "POST", headers, body: JSON.stringify(requestBody)
