@@ -535,19 +535,44 @@
       const btn = document.getElementById('btnAnalyze');
       btn.disabled = true; btn.textContent = "กำลังสกัดข้อมูลโภชนาการ...";
       
-      const schema = `{"type":"array","items":{"type":"object","properties":{"dish_name":{"type":"string"},"estimated_weight_g":{"type":"integer"},"hidden_oil_tbsp":{"type":"number"},"nutritional_breakdown":{"type":"object","properties":{"calories":{"type":"integer"},"macros":{"type":"object","properties":{"protein_g":{"type":"integer"},"fat_g":{"type":"integer"},"carbs_g":{"type":"integer"}}},"micros":{"type":"object","properties":{"fiber_g":{"type":"integer"},"sodium_mg":{"type":"integer"}}}}},"scientific_evaluation":{"type":"object","properties":{"mps_threshold_reached":{"type":"boolean"},"satiety_index":{"type":"string"},"actionable_tip":{"type":"string"}}}}}}`;
+      const schemaObj = {
+        type: "ARRAY",
+        items: {
+          type: "OBJECT",
+          properties: {
+            dish_name: { type: "STRING" },
+            estimated_weight_g: { type: "INTEGER" },
+            hidden_oil_tbsp: { type: "NUMBER" },
+            nutritional_breakdown: {
+              type: "OBJECT",
+              properties: {
+                calories: { type: "INTEGER" },
+                macros: { type: "OBJECT", properties: { protein_g: { type: "INTEGER" }, fat_g: { type: "INTEGER" }, carbs_g: { type: "INTEGER" } } },
+                micros: { type: "OBJECT", properties: { fiber_g: { type: "INTEGER" }, sodium_mg: { type: "INTEGER" } } }
+              }
+            },
+            scientific_evaluation: {
+              type: "OBJECT",
+              properties: { mps_threshold_reached: { type: "BOOLEAN" }, satiety_index: { type: "STRING" }, actionable_tip: { type: "STRING" } }
+            }
+          }
+        }
+      };
+
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${pState.key}`;
         
-        const parts = [{ text: "วิเคราะห์ภาพอาหารเหล่านี้ หากมีอาหารหลายชนิดให้แยกเป็นเมนูย่อยๆ" }];
+        const parts = [{ text: "You are a Thai elite sports nutritionist AI. Analyze the food images. Identify ALL distinct food dishes present. Answer in THAI language. Estimate macros accurately." }];
         b64Images.forEach(imgData => {
            parts.push({ inline_data: { mime_type: "image/jpeg", data: imgData } });
         });
 
         const req = {
-          system_instruction: { parts: [{ text: "You are a Thai elite sports nutritionist AI. Analyze the food images. Identify ALL distinct food dishes present. Answer in THAI language. Respond ONLY in pure JSON matching this schema which is an ARRAY of objects: " + schema }] },
           contents: [{ parts: parts }],
-          generationConfig: { response_mime_type: "application/json" }
+          generationConfig: { 
+            response_mime_type: "application/json",
+            response_schema: schemaObj
+          }
         };
 
         const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(req) });
@@ -597,3 +622,5 @@
 <!-- cache bust v11 -->
 
 <!-- cache bust v12 -->
+
+<!-- cache bust v13 -->
