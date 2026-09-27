@@ -261,17 +261,15 @@
           <option value="snack">🍩 ของว่าง (Snack)</option>
         </select>
 
-        <label for="foodImg" class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-hairline rounded-xl cursor-pointer hover:bg-white/5 transition">
+        <label for="foodImg" class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-hairline rounded-xl cursor-pointer hover:bg-white/5 transition">
           <span class="text-3xl mb-2">📸</span>
-          <span class="text-sm text-textMuted">แตะเพื่อถ่ายรูปหรืออัปโหลด</span>
-          <input type="file" id="foodImg" class="hidden" accept="image/*">
+          <span class="text-sm text-textMuted">แตะเพื่ออัปโหลดหลายรูปได้</span>
+          <input type="file" id="foodImg" class="hidden" accept="image/*" multiple>
         </label>
-        <img id="scanPreview" class="w-full h-40 object-cover rounded-xl hidden mt-2">
+        <div id="scanPreviewContainer" class="flex gap-2 mt-2 overflow-x-auto"></div>
       </div>
 
       <button class="btn-primary" id="btnAnalyze" onclick="executeScan()">บันทึกและสกัดข้อมูลโภชนาการ</button>
-
-      <div id="scanResult" class="mt-4 hidden p-4 rounded-xl bg-appBg border border-hairline text-sm text-gray-300"></div>
     </div>
   </div>
 
@@ -508,80 +506,75 @@
     }
 
     // SCANNER
-    let b64Img = "";
+    let b64Images = [];
     document.getElementById('foodImg').addEventListener('change', function(e) {
-      if (this.files[0]) {
+      const container = document.getElementById('scanPreviewContainer');
+      Array.from(this.files).forEach(file => {
         const reader = new FileReader();
         reader.onload = e => {
-          document.getElementById('scanPreview').src = e.target.result;
-          document.getElementById('scanPreview').classList.remove('hidden');
-          b64Img = e.target.result.split(',')[1];
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.className = 'w-16 h-16 object-cover rounded-md border border-hairline';
+          container.appendChild(img);
+          b64Images.push(e.target.result.split(',')[1]);
         }
-        reader.readAsDataURL(this.files[0]);
-      }
+        reader.readAsDataURL(file);
+      });
     });
 
     function openScanner() {
-      document.getElementById('scanPreview').classList.add('hidden');
-      b64Img = ""; document.getElementById('scanResult').classList.add('hidden');
-      document.getElementById('btnAnalyze').textContent = "วิเคราะห์โภชนาการ (Analyze)";
+      document.getElementById('scanPreviewContainer').innerHTML = '';
+      b64Images = [];
+      document.getElementById('btnAnalyze').textContent = "บันทึกและสกัดข้อมูลโภชนาการ";
       document.getElementById('btnAnalyze').disabled = false;
       openModal('scanModal');
     }
 
-    function processAiResult(data) {
-      let mealType = document.getElementById('s-meal').value;
-      let d = new Date();
-      
-      if (!appData[activeDateStr]) appData[activeDateStr] = { breakfast:[], lunch:[], dinner:[], snack:[] };
-      
-      appData[activeDateStr][mealType].push({
-        name: data.dish_name,
-        cal: data.nutritional_breakdown.calories,
-        pro: data.nutritional_breakdown.macros.protein_g,
-        carb: data.nutritional_breakdown.macros.carbs_g,
-        fat: data.nutritional_breakdown.macros.fat_g,
-        fib: data.nutritional_breakdown.micros.fiber_g,
-        sod: data.nutritional_breakdown.micros.sodium_mg,
-        time: d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')
-      });
-      localStorage.setItem('nj_data2', JSON.stringify(appData));
-      
-      const res = document.getElementById('scanResult');
-      res.innerHTML = `
-        <div class="font-bold text-neonPurp mb-1">${data.dish_name} (${data.estimated_weight_g}g)</div>
-        <div class="text-[11px] mb-2 text-emerald">💡 ${data.scientific_evaluation.actionable_tip}</div>
-        <div class="grid grid-cols-4 gap-2 text-center font-mono text-[10px]">
-          <div class="bg-cardBg p-1 rounded border border-hairline"><span class="block text-white text-xs">${data.nutritional_breakdown.calories}</span>KCAL</div>
-          <div class="bg-cardBg p-1 rounded border border-hairline text-cyanBlue"><span class="block text-xs">${data.nutritional_breakdown.macros.protein_g}</span>PRO</div>
-          <div class="bg-cardBg p-1 rounded border border-hairline text-emerald"><span class="block text-xs">${data.nutritional_breakdown.macros.carbs_g}</span>CRB</div>
-          <div class="bg-cardBg p-1 rounded border border-hairline text-lossRed"><span class="block text-xs">${data.nutritional_breakdown.macros.fat_g}</span>FAT</div>
-        </div>
-      `;
-      res.classList.remove('hidden');
-      
-      computeMetrics(); renderDashboard();
-    }
-
     async function executeScan() {
-      if(!b64Img) return alert("กรุณาอัปโหลดรูปอาหารก่อน");
+      if(b64Images.length === 0) return alert("กรุณาอัปโหลดรูปอาหารอย่างน้อย 1 รูป");
       const btn = document.getElementById('btnAnalyze');
       btn.disabled = true; btn.textContent = "กำลังสกัดข้อมูลโภชนาการ...";
       
-      const schema = `{"type":"object","properties":{"dish_name":{"type":"string"},"estimated_weight_g":{"type":"integer"},"hidden_oil_tbsp":{"type":"number"},"nutritional_breakdown":{"type":"object","properties":{"calories":{"type":"integer"},"macros":{"type":"object","properties":{"protein_g":{"type":"integer"},"fat_g":{"type":"integer"},"carbs_g":{"type":"integer"}}},"micros":{"type":"object","properties":{"fiber_g":{"type":"integer"},"sodium_mg":{"type":"integer"}}}}},"scientific_evaluation":{"type":"object","properties":{"mps_threshold_reached":{"type":"boolean"},"satiety_index":{"type":"string"},"actionable_tip":{"type":"string"}}}}}`;
+      const schema = `{"type":"array","items":{"type":"object","properties":{"dish_name":{"type":"string"},"estimated_weight_g":{"type":"integer"},"hidden_oil_tbsp":{"type":"number"},"nutritional_breakdown":{"type":"object","properties":{"calories":{"type":"integer"},"macros":{"type":"object","properties":{"protein_g":{"type":"integer"},"fat_g":{"type":"integer"},"carbs_g":{"type":"integer"}}},"micros":{"type":"object","properties":{"fiber_g":{"type":"integer"},"sodium_mg":{"type":"integer"}}}}},"scientific_evaluation":{"type":"object","properties":{"mps_threshold_reached":{"type":"boolean"},"satiety_index":{"type":"string"},"actionable_tip":{"type":"string"}}}}}}`;
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${pState.key}`;
+        
+        const parts = [{ text: "วิเคราะห์ภาพอาหารเหล่านี้ หากมีอาหารหลายชนิดให้แยกเป็นเมนูย่อยๆ" }];
+        b64Images.forEach(imgData => {
+           parts.push({ inline_data: { mime_type: "image/jpeg", data: imgData } });
+        });
+
         const req = {
-          system_instruction: { parts: [{ text: "You are a Thai elite sports nutritionist AI. Analyze the food image. Answer in THAI language. Respond ONLY in pure JSON matching this schema: " + schema }] },
-          contents: [{ parts: [{ text: "วิเคราะห์มื้อนี้หน่อย" }, { inline_data: { mime_type: "image/jpeg", data: b64Img } }] }],
+          system_instruction: { parts: [{ text: "You are a Thai elite sports nutritionist AI. Analyze the food images. Identify ALL distinct food dishes present. Answer in THAI language. Respond ONLY in pure JSON matching this schema which is an ARRAY of objects: " + schema }] },
+          contents: [{ parts: parts }],
           generationConfig: { response_mime_type: "application/json" }
         };
 
         const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(req) });
         const data = await response.json();
         if (response.ok) {
-          processAiResult(JSON.parse(data.candidates[0].content.parts[0].text));
+          const items = JSON.parse(data.candidates[0].content.parts[0].text);
+          let mealType = document.getElementById('s-meal').value;
+          let d = new Date();
+          if (!appData[activeDateStr]) appData[activeDateStr] = { breakfast:[], lunch:[], dinner:[], snack:[] };
+          
+          items.forEach(item => {
+             appData[activeDateStr][mealType].push({
+                name: item.dish_name,
+                cal: item.nutritional_breakdown.calories,
+                pro: item.nutritional_breakdown.macros.protein_g,
+                carb: item.nutritional_breakdown.macros.carbs_g,
+                fat: item.nutritional_breakdown.macros.fat_g,
+                fib: item.nutritional_breakdown.micros.fiber_g,
+                sod: item.nutritional_breakdown.micros.sodium_mg,
+                time: d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')
+             });
+          });
+          localStorage.setItem('nj_data2', JSON.stringify(appData));
+          computeMetrics(); renderDashboard();
+          
           btn.textContent = "บันทึกสำเร็จเรียบร้อย!";
+          setTimeout(() => closeModal('scanModal'), 800);
         } else throw new Error("API Error");
       } catch (err) {
         alert("การเชื่อมต่อล้มเหลว กรุณาลองใหม่อีกครั้ง");
@@ -602,3 +595,5 @@
 <!-- cache bust v10 -->
 
 <!-- cache bust v11 -->
+
+<!-- cache bust v12 -->
