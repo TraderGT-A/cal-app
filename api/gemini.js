@@ -1,17 +1,17 @@
 ﻿/**
- * Nutri Journal โ€” Gemini proxy (Vercel Serverless Function)
+ * Nutri Journal — Gemini proxy (Vercel Serverless Function)
  *
  * Keeps the Gemini API key on the server so it never appears in index.html.
- * Set the key once in Vercel โ’ Project โ’ Settings โ’ Environment Variables:
+ * Set the key once in Vercel → Project → Settings → Environment Variables:
  *   GEMINI_API_KEY = <your key from aistudio.google.com>
  *
  * The page calls POST /api/gemini?model=<model> with a generateContent body.
  */
 const ALLOWED_MODELS = new Set([
-  'gemini-1.5-flash',
-  'gemini-1.5-pro',
-  'gemini-1.5-flash-8b',
-  'gemini-1.5-pro-exp-0827',
+  'gemini-3.1-pro-preview',
+  'gemini-3.1-pro-preview',
+  'gemini-3.5-flash-lite',
+  'gemini-2.5-flash',
 ]);
 const MAX_BODY_BYTES = 4 * 1024 * 1024;
 
@@ -21,7 +21,7 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') return fail(res, 405, 'Method not allowed');
 
   const key = process.env.GEMINI_API_KEY;
-  if (!key) return fail(res, 500, 'เน€เธเธดเธฃเนเธเน€เธงเธญเธฃเนเธขเธฑเธเนเธกเนเนเธ”เนเธ•เธฑเนเธเธเนเธฒ GEMINI_API_KEY');
+  if (!key) return fail(res, 500, 'เซิร์ฟเวอร์ยังไม่ได้ตั้งค่า GEMINI_API_KEY');
 
   // Only serve requests coming from this site's own pages.
   const origin = req.headers.origin;
@@ -31,12 +31,12 @@ module.exports = async (req, res) => {
     if (originHost !== req.headers.host) return fail(res, 403, 'Forbidden origin');
   }
 
-  const model = String(req.query.model || 'gemini-1.5-flash');
+  const model = String(req.query.model || 'gemini-3.1-pro-preview');
   // 404 + "not supported" lets the page fall back to the next model in its list.
   if (!ALLOWED_MODELS.has(model)) return fail(res, 404, `Model ${model} is not supported by this server`);
 
   const body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body || {});
-  if (Buffer.byteLength(body) > MAX_BODY_BYTES) return fail(res, 413, 'เธฃเธนเธเนเธซเธเนเน€เธเธดเธเนเธ');
+  if (Buffer.byteLength(body) > MAX_BODY_BYTES) return fail(res, 413, 'รูปใหญ่เกินไป');
 
   try {
     const upstream = await fetch(
@@ -47,7 +47,6 @@ module.exports = async (req, res) => {
     res.status(upstream.status).setHeader('Content-Type', 'application/json');
     return res.send(text);
   } catch (err) {
-    return fail(res, 502, 'เน€เธเธทเนเธญเธกเธ•เนเธญ Gemini เนเธกเนเธชเธณเน€เธฃเนเธ: ' + (err && err.message ? err.message : err));
+    return fail(res, 502, 'เชื่อมต่อ Gemini ไม่สำเร็จ: ' + (err && err.message ? err.message : err));
   }
 };
-

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="th" data-theme="obsidian">
 <head>
 <meta charset="UTF-8" />
@@ -187,6 +187,30 @@
   [data-theme="obsidian"] #bgScene .trav { display: none; }
   [data-theme="obsidian"] #bgScene .obs { display: block; }
 </style>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    const app = initializeApp({
+      apiKey: "AIzaSyDt8NzMO9TKV809ns665qyuhfotBleLywE",
+      authDomain: "cal-app-71068.firebaseapp.com",
+      projectId: "cal-app-71068"
+    });
+    window.db = getFirestore(app); window.fsDoc = doc; window.fsSetDoc = setDoc; window.fsGetDoc = getDoc;
+    let syncCode = localStorage.getItem('nj.syncCode');
+    if(!syncCode) { syncCode = Math.random().toString(36).substr(2, 5).toUpperCase(); localStorage.setItem('nj.syncCode', syncCode); }
+    let syncTimeout;
+    window.triggerCloudSync = () => { clearTimeout(syncTimeout); syncTimeout = setTimeout(async () => {
+      const data = {}; for(let i=0; i<localStorage.length; i++) { const k = localStorage.key(i); if(k.startsWith('nj.')) data[k] = localStorage.getItem(k); }
+      await window.fsSetDoc(window.fsDoc(window.db, 'sync', syncCode), data);
+    }, 1500); };
+    window.loadFromCloud = async (code) => {
+      const docSnap = await window.fsGetDoc(window.fsDoc(window.db, 'sync', code.toUpperCase()));
+      if(docSnap.exists()) {
+        const data = docSnap.data(); for(const k in data) localStorage.setItem(k, data[k]);
+        localStorage.setItem('nj.syncCode', code.toUpperCase()); location.reload();
+      } else alert('❌ ไม่พบข้อมูลรหัสนี้');
+    };
+  </script>
 </head>
 <body class="min-h-screen">
 
@@ -742,7 +766,7 @@
     theme: 'nj.theme', ghost: 'nj.ghost',
   };
   const load = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } };
-  const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { toast('พื้นที่จัดเก็บเต็ม ลองลบประวัติเก่า', 'bad'); return false; } };
+  const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); if(window.triggerCloudSync) window.triggerCloudSync(); return true; } catch { toast('พื้นที่จัดเก็บเต็ม ลองลบประวัติเก่า', 'bad'); return false; } };
 
   // ---------- Constants ----------
   const GOALS = {
@@ -753,8 +777,8 @@
   };
   const SODIUM_LIMIT = 2000;
   const MPS_PROTEIN_G = 25;
-  const DEFAULT_MODEL = 'gemini-1.5-flash';
-  const FALLBACK_MODELS = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro-exp-0827'];
+  const DEFAULT_MODEL = 'gemini-3.1-pro-preview';
+  const FALLBACK_MODELS = ['gemini-3.1-pro-preview', 'gemini-3.8-flash', 'gemini-3.5-flash-lite'];
   const DEFAULT_PROFILE = { name: '', sex: 'male', age: 28, height: 175, weight: 75, startWeight: null, goalWeight: null, activity: 1.55, goal: 'cut20', proteinPerKg: 2.2, fatPct: 25 };
   const TIERS = [
     { en: 'Rookie Camper', th: 'นักตั้งแคมป์มือใหม่ · เริ่มต้นการเดินทาง' },
