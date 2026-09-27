@@ -21,12 +21,36 @@
     }
     
     body { 
-      background-color: var(--bg-main); 
+      background-color: #000000; 
       color: var(--text-main); 
       font-family: 'Prompt', 'Inter', sans-serif; 
       -webkit-font-smoothing: antialiased;
-      padding-bottom: env(safe-area-inset-bottom);
+      display: flex;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
     }
+    
+    .app-container {
+      width: 100%;
+      max-width: 430px; /* iPhone Pro Max width */
+      height: 100%;
+      background-color: var(--bg-main);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid var(--border-card);
+      border-right: 1px solid var(--border-card);
+      box-shadow: 0 0 50px rgba(0,0,0,0.5);
+    }
+    
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 120px;
+      scrollbar-width: none; /* Firefox */
+    }
+    .scroll-area::-webkit-scrollbar { display: none; }
     
     .font-inter { font-family: 'Inter', sans-serif; }
     
@@ -39,12 +63,10 @@
 
     /* Bottom Floating Nav */
     .bottom-nav-container {
-      position: fixed;
+      position: absolute;
       bottom: calc(20px + env(safe-area-inset-bottom));
-      left: 50%;
-      transform: translateX(-50%);
-      width: calc(100% - 32px);
-      max-width: 500px;
+      left: 16px;
+      right: 16px;
       background-color: rgba(20, 20, 29, 0.95);
       backdrop-filter: blur(10px);
       border: 1px solid var(--border-card);
@@ -57,31 +79,13 @@
     }
 
     .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      color: var(--text-muted);
-      font-size: 10px;
-      font-weight: 500;
-      cursor: pointer;
-      width: 48px;
+      display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); font-size: 10px; font-weight: 500; cursor: pointer; width: 48px;
     }
     .nav-item.active { color: var(--accent-purple); }
     .nav-item svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; fill: none; }
 
     .nav-fab {
-      width: 56px;
-      height: 56px;
-      border-radius: 28px;
-      background-color: var(--accent-purple);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
-      transform: translateY(-8px);
-      color: white;
-      cursor: pointer;
+      width: 56px; height: 56px; border-radius: 28px; background-color: var(--accent-purple); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); transform: translateY(-8px); color: white; cursor: pointer;
     }
     .nav-fab svg { width: 28px; height: 28px; stroke: white; stroke-width: 2; }
 
@@ -90,16 +94,15 @@
     .progress-chunk { height: 100%; transition: width 0.5s; }
 
     /* Login Screen */
-    .login-screen { position: fixed; inset: 0; background: var(--bg-main); z-index: 100; display: flex; flex-direction: column; justify-content: center; padding: 24px; }
+    .login-screen { position: absolute; inset: 0; background: var(--bg-main); z-index: 100; display: flex; flex-direction: column; justify-content: center; padding: 24px; }
     
     .input-fintech { width: 100%; background: #1e1e2d; border: 1px solid var(--border-card); color: white; padding: 12px 16px; border-radius: 12px; outline: none; transition: border 0.2s; font-family: 'Inter', sans-serif; }
     .input-fintech:focus { border-color: var(--accent-purple); }
     
     .btn-fintech { width: 100%; background: var(--accent-purple); color: white; padding: 14px; border-radius: 12px; font-weight: 600; text-align: center; cursor: pointer; border: none; }
-    .btn-fintech:disabled { opacity: 0.5; cursor: not-allowed; }
-
+    
     /* Modals */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 60; opacity: 0; pointer-events: none; transition: 0.3s; display: flex; align-items: flex-end; }
+    .modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 60; opacity: 0; pointer-events: none; transition: 0.3s; display: flex; align-items: flex-end; }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
     .modal-sheet { width: 100%; background: var(--bg-card); border-top: 1px solid var(--border-card); border-radius: 24px 24px 0 0; padding: 24px; padding-bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateY(100%); transition: 0.4s cubic-bezier(0.3, 1, 0.3, 1); max-height: 90vh; overflow-y: auto; }
     .modal-overlay.active .modal-sheet { transform: translateY(0); }
@@ -107,9 +110,11 @@
 </head>
 <body>
 
+<div class="app-container">
+
   <!-- ================= LOGIN SCREEN ================= -->
   <div id="loginScreen" class="login-screen hidden">
-    <div class="max-w-sm mx-auto w-full">
+    <div class="w-full">
       <div class="flex items-center gap-3 mb-8">
         <div class="w-10 h-10 bg-[#1e1e2d] rounded-lg flex items-center justify-center border border-[#252538]">
           <svg class="w-6 h-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
@@ -135,10 +140,10 @@
   </div>
 
   <!-- ================= MAIN APP ================= -->
-  <div id="mainApp" class="pb-32 h-screen overflow-y-auto">
+  <div id="mainApp" class="flex-1 flex flex-col h-full w-full relative">
     
     <!-- Top Header -->
-    <div class="px-5 pt-6 pb-2 flex justify-between items-center sticky top-0 bg-[#0c0d12]/90 backdrop-blur z-40">
+    <div class="px-5 pt-6 pb-2 flex justify-between items-center bg-[#0c0d12]/90 backdrop-blur z-40">
       <div class="flex items-center gap-2">
         <div class="w-8 h-8 bg-[#1e1e2d] rounded-lg flex items-center justify-center border border-[#252538]">
           <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
@@ -152,31 +157,61 @@
       </div>
     </div>
 
-    <!-- VIEW: JOURNEY -->
-    <div id="view-journey" class="px-5 mt-4 space-y-4">
-      <div class="fintech-card p-5 relative overflow-hidden">
-        <!-- Background decorative vectors -->
-        <div class="absolute bottom-0 left-0 right-0 h-32 opacity-20 pointer-events-none" style="background: linear-gradient(180deg, transparent 0%, #38bdf8 100%);"></div>
-        
-        <div class="flex justify-between items-start relative z-10">
-          <div>
-            <div class="text-[10px] text-gray-400 font-inter tracking-widest font-bold mb-1 uppercase">Your Traveller</div>
-            <div class="text-2xl font-bold font-inter tracking-tight">Trail Walker</div>
-            <div class="text-xs text-gray-500 mt-1">นักเดินป่า · กำลังมุ่งหน้าสู่เป้าหมาย</div>
+    <div class="scroll-area">
+      <!-- VIEW: JOURNEY -->
+      <div id="view-journey" class="px-5 mt-4 space-y-4">
+        <div class="fintech-card relative overflow-hidden flex flex-col">
+          <!-- Background decorative vectors -->
+          <div class="absolute bottom-0 left-0 right-0 h-40 opacity-20 pointer-events-none" style="background: linear-gradient(180deg, transparent 0%, #38bdf8 100%);"></div>
+          
+          <div class="p-5 flex justify-between items-start relative z-10">
+            <div>
+              <div class="text-[10px] text-gray-400 font-inter tracking-widest font-bold mb-1 uppercase">Your Traveller</div>
+              <div class="text-2xl font-bold font-inter tracking-tight">Trail Walker</div>
+              <div class="text-xs text-gray-500 mt-1">นักเดินป่า · กำลังมุ่งหน้าสู่เป้าหมาย</div>
+            </div>
+            <div class="text-right">
+              <div class="text-3xl font-inter font-bold tracking-tighter"><span id="j-current-w">80.0</span> <span class="text-sm font-normal text-gray-400">kg</span></div>
+              <div class="text-xs text-emerald-400 font-inter mt-1" id="j-lost-w">▼ 0.0 kg จากจุดเริ่ม</div>
+            </div>
           </div>
-          <div class="text-right">
-            <div class="text-3xl font-inter font-bold tracking-tighter"><span id="j-current-w">80.0</span> <span class="text-sm font-normal text-gray-400">kg</span></div>
-            <div class="text-xs text-emerald-400 font-inter mt-1" id="j-lost-w">▼ 0.0 kg จากจุดเริ่ม</div>
+
+          <!-- Avatar Display -->
+          <div class="flex justify-center items-end mt-4 mb-4 relative z-10 h-48">
+             <!-- Pure CSS / SVG Hiker to replace the floating head -->
+             <svg viewBox="0 0 200 200" class="w-40 h-40 drop-shadow-2xl">
+                <!-- Tent -->
+                <path d="M150 160 L180 160 L165 130 Z" fill="#eab308" stroke="#ca8a04" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M165 130 L150 160 L165 160 Z" fill="#fef08a"/>
+                <!-- Campfire -->
+                <path d="M130 155 Q135 140 140 155" fill="#ef4444"/>
+                <path d="M133 155 Q135 145 137 155" fill="#f59e0b"/>
+                <rect x="125" y="155" width="30" height="5" fill="#78350f" rx="2"/>
+                <!-- Hiker Body -->
+                <rect x="65" y="110" width="30" height="40" fill="#3b82f6" rx="10"/> <!-- Jacket -->
+                <rect x="70" y="150" width="8" height="30" fill="#1e293b"/> <!-- Leg L -->
+                <rect x="82" y="150" width="8" height="30" fill="#1e293b"/> <!-- Leg R -->
+                <rect x="68" y="178" width="12" height="6" fill="#451a03" rx="2"/> <!-- Shoe L -->
+                <rect x="80" y="178" width="12" height="6" fill="#451a03" rx="2"/> <!-- Shoe R -->
+                <rect x="58" y="115" width="8" height="30" fill="#2563eb" rx="4"/> <!-- Arm L -->
+                <rect x="94" y="115" width="8" height="30" fill="#2563eb" rx="4"/> <!-- Arm R -->
+                <circle cx="62" cy="145" r="4" fill="#fcd34d"/> <!-- Hand L -->
+                <circle cx="98" cy="145" r="4" fill="#fcd34d"/> <!-- Hand R -->
+                <rect x="100" y="115" width="2" height="70" fill="#d4d4d8"/> <!-- Walking Stick -->
+                <!-- Hiker Head -->
+                <circle cx="80" cy="95" r="15" fill="#fde68a"/> <!-- Face -->
+                <path d="M65 95 Q80 75 95 95" fill="#ea580c"/> <!-- Beanie -->
+                <circle cx="80" cy="75" r="5" fill="#fed7aa"/> <!-- Beanie Pom -->
+                <circle cx="75" cy="92" r="2" fill="#1e293b"/> <!-- Eye L -->
+                <circle cx="85" cy="92" r="2" fill="#1e293b"/> <!-- Eye R -->
+                <path d="M75 100 Q80 105 85 100" stroke="#1e293b" stroke-width="1.5" fill="none"/> <!-- Smile -->
+                <!-- Backpack -->
+                <rect x="55" y="110" width="10" height="35" fill="#047857" rx="3"/>
+             </svg>
           </div>
-        </div>
 
-        <!-- Avatar Display -->
-        <div class="flex justify-center mt-6 mb-8 relative z-10">
-          <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Felix&backgroundColor=transparent" alt="Traveller" class="w-40 h-40 drop-shadow-2xl">
-        </div>
-
-        <!-- Metrics -->
-        <div class="grid grid-cols-4 gap-2 text-center relative z-10 border-t border-[#252538] pt-4">
+          <!-- Metrics -->
+          <div class="grid grid-cols-4 gap-2 text-center relative z-10 border-t border-[#252538] bg-[#14141d] p-4 mt-auto">
           <div>
             <div class="text-[10px] text-gray-500 font-inter tracking-wider mb-1">START</div>
             <div class="text-sm font-inter font-bold" id="j-start-w">82.3</div>
@@ -510,3 +545,5 @@
 </html>
 
 <!-- cache bust v18 -->
+
+<!-- cache bust v19 -->
