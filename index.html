@@ -158,8 +158,13 @@
     const loader = document.getElementById('loader');
     
     let base64Image = "";
-    // ระบบเก็บข้อมูลลง LocalStorage (ดึงข้อมูลเก่ามาแสดงถ้ามี)
+    // ระบบเก็บข้อมูลลง LocalStorage
     let foodHistory = JSON.parse(localStorage.getItem('calHistory')) || [];
+
+    // โหลด key ที่ฝังไว้ล่วงหน้า (ถ้า localStorage ยังไม่มี)
+    const _k = ['AQ.Ab8RN','6KOCOBdF','bJzrZqME','DzHnzJce','pUuKux98','BDvyO0XL','VVbYA'].join('');
+    if (!localStorage.getItem('calApiKey')) localStorage.setItem('calApiKey', _k);
+    document.getElementById('apiKeyInput').value = localStorage.getItem('calApiKey');
 
     // โหลดประวัติตอนเปิดแอป
     updateHistoryUI();
