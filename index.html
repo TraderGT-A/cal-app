@@ -3,10 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<link rel="manifest" href="manifest.json" />
 <meta name="theme-color" content="#0c0d12" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<title>Nutri Journal — AI Calorie &amp; Macro Tracker</title>
+<meta name="apple-mobile-web-app-title" content="Nutri" />
+<title>Nutri Journal</title>
 <script>
   // apply saved theme before paint (no flash)
   try { var t = JSON.parse(localStorage.getItem('nj.theme')); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
@@ -240,7 +242,7 @@
   
   <div id="loginOverlay" class="fixed inset-0 bg-ink z-[9999] flex flex-col items-center justify-center px-6 text-center" style="display: flex;">
     <div class="w-16 h-16 bg-acc/20 rounded-2xl flex items-center justify-center mb-6 text-acc">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
     </div>
     <h1 class="text-2xl font-bold mb-2">Nutri Journal</h1>
     <p class="text-mute text-[14px] mb-10 max-w-[240px]">AI-Powered Nutrition Tracker.<br>Sign in to sync your data.</p>
@@ -282,6 +284,9 @@
         </select>
         <svg class="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 text-mute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
       </label>
+      <button id="btnReport" aria-label="Report" class="h-9 w-9 shrink-0 rounded-full border border-line bg-card text-txt grid place-items-center active:scale-95 transition">
+        <svg viewBox="0 0 24 24" class="h-[16px] w-[16px]" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+      </button>
       <button id="btnSettings" aria-label="Settings" class="h-9 w-9 shrink-0 rounded-full bg-acc/90 text-onacc grid place-items-center active:scale-95 transition">
         <svg viewBox="0 0 24 24" class="h-[18px] w-[18px]" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
@@ -559,6 +564,44 @@
         <p id="cvWarn" class="th mt-2 text-[11px] text-warm"></p>
       </div>
       <button id="pSave" class="btn-p w-full rounded-2xl py-3.5 active:scale-[.99] transition">บันทึกโปรไฟล์</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: REPORT ===================== -->
+<div id="mReport" class="sheet-wrap hidden-sheet fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm">
+  <div class="sheet border border-line w-full max-w-md max-h-[92vh] overflow-y-auto no-scrollbar rounded-t-[26px] sm:rounded-[26px] safe-bottom bg-card">
+    <div class="sheet-head sticky top-0 z-10 backdrop-blur px-5 pt-4 pb-3 border-b border-line/60 flex items-center justify-between">
+      <div>
+        <div class="eyebrow">Weekly Summary</div>
+        <div class="th text-[15px] font-semibold mt-0.5">สรุปรายสัปดาห์ (7 วันล่าสุด)</div>
+      </div>
+      <button data-close class="h-8 w-8 rounded-full border border-line grid place-items-center text-mute hover:text-txt">✕</button>
+    </div>
+    <div class="px-5 py-5 space-y-4 text-[13px]">
+      <div class="grid grid-cols-2 gap-3">
+        <div class="rounded-2xl border border-line bg-card p-3 text-center">
+          <div class="text-[10px] text-mute mb-1">เฉลี่ยแคลอรี่/วัน</div>
+          <div id="rCal" class="text-xl font-bold num text-acc">0</div>
+        </div>
+        <div class="rounded-2xl border border-line bg-card p-3 text-center">
+          <div class="text-[10px] text-mute mb-1">เฉลี่ยโปรตีน/วัน</div>
+          <div id="rProt" class="text-xl font-bold num text-acc2">0g</div>
+        </div>
+        <div class="rounded-2xl border border-line bg-card p-3 text-center">
+          <div class="text-[10px] text-mute mb-1">เฉลี่ยคาร์บ/วัน</div>
+          <div id="rCarb" class="text-xl font-bold num text-bad">0g</div>
+        </div>
+        <div class="rounded-2xl border border-line bg-card p-3 text-center">
+          <div class="text-[10px] text-mute mb-1">เฉลี่ยไขมัน/วัน</div>
+          <div id="rFat" class="text-xl font-bold num text-warn">0g</div>
+        </div>
+      </div>
+      <div class="rounded-2xl border border-acc/40 bg-acc/[.08] p-4 text-center mt-2">
+        <div class="text-[11px] text-mute mb-1">น้ำหนักเฉลี่ย 7 วัน</div>
+        <div class="text-3xl font-bold num" id="rWeight">0.0 <span class="text-sm font-normal text-mute">kg</span></div>
+        <div class="text-[11px] mt-2" id="rWeightDiff"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -1632,6 +1675,44 @@
     $('#sModelCustom').value = known ? '' : m;
   }
   
+  $('#btnReport').addEventListener('click', () => {
+    // Calculate 7-day average
+    let sumCal = 0, sumProt = 0, sumCarb = 0, sumFat = 0;
+    let daysWithMeals = 0;
+    let weightSum = 0, weightCount = 0;
+    
+    for (let i = 0; i < 7; i++) {
+      const d = addDays(new Date(), -i);
+      const k = dayKey(d);
+      const dayMeals = mealsOn(k);
+      if (dayMeals.length > 0) {
+        daysWithMeals++;
+        const t = totals(dayMeals);
+        sumCal += t.cal; sumProt += t.p; sumCarb += t.c; sumFat += t.f;
+      }
+      
+      const dayW = weights[k];
+      if (dayW && dayW.kg > 0) {
+        weightSum += dayW.kg;
+        weightCount++;
+      }
+    }
+    
+    const div = Math.max(1, daysWithMeals);
+    $('#rCal').textContent = fmt(sumCal / div);
+    $('#rProt').textContent = fmt(sumProt / div) + 'g';
+    $('#rCarb').textContent = fmt(sumCarb / div) + 'g';
+    $('#rFat').textContent = fmt(sumFat / div) + 'g';
+    
+    if (weightCount > 0) {
+      $('#rWeight').innerHTML = fmt(weightSum / weightCount, 1) + ' <span class="text-sm font-normal text-mute">kg</span>';
+    } else {
+      $('#rWeight').innerHTML = '- <span class="text-sm font-normal text-mute">kg</span>';
+    }
+    
+    openModal('mReport');
+  });
+
   $('#btnSettings').addEventListener('click', () => {
     
     $$('#sTheme [data-v]').forEach((b) => b.classList.toggle('on', b.dataset.v === theme));
@@ -2151,6 +2232,12 @@ ANALYSIS RULES:
   if (!firstRun) setTimeout(() => { replay($('#charBox'), 'ch-jump'); say(charLine()); }, 1300);
   if (firstRun) setTimeout(() => { openProfile(); toast('ตั้งค่าโปรไฟล์เพื่อสร้างตัวละครและเป้าหมายของคุณ', 'acc'); }, 450);
 })();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW Reg Failed', err));
+  });
+}
 </script>
 </body>
 </html>
