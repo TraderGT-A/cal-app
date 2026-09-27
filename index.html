@@ -2,266 +2,375 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Cozy Calorie Journey</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Thus Journal - AI Macro Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&family=Prompt:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@400;500;600&display=swap" rel="stylesheet">
   
   <style>
-    :root { --bg-dark: #121c26; --bg-card: rgba(18, 28, 38, 0.85); --accent: #f0932b; --text-main: #f5f6fa; }
-    body, html { margin: 0; padding: 0; height: 100%; height: -webkit-fill-available; font-family: 'Prompt', 'Nunito', sans-serif; background-color: var(--bg-dark); color: var(--text-main); overflow: hidden; touch-action: manipulation; }
-    
-    /* Bulletproof Background */
-    .app-container { position: relative; width: 100vw; height: 100%; background-image: url('./assets/bg.jpg'); background-size: cover; background-position: center bottom; background-repeat: no-repeat; }
-    .app-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(18, 28, 38, 0.3) 0%, rgba(18, 28, 38, 0.1) 40%, rgba(18, 28, 38, 0.95) 100%); }
-    .glass-panel { background: var(--bg-card); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
-    
-    /* High Quality SVG Avatar Animation */
-    #journeyCharacter {
-      position: absolute; left: 50%; transform: translateX(-50%);
-      transition: bottom 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-      z-index: 10; display: flex; flex-direction: column; align-items: center;
+    :root { 
+      --bg-main: #0c0d12; 
+      --bg-card: #14141d; 
+      --border-card: #252538;
+      --accent-purple: #8b5cf6;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --accent-cyan: #38bdf8;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
     }
-    .avatar-bounce {
-      width: 100px; height: 100px; 
-      display: flex; align-items: center; justify-content: center;
-      filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
-      animation: bounce 2.5s infinite ease-in-out;
+    
+    body { 
+      background-color: var(--bg-main); 
+      color: var(--text-main); 
+      font-family: 'Prompt', 'Inter', sans-serif; 
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: env(safe-area-inset-bottom);
     }
-    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
     
-    /* Bottom UI */
-    .bottom-ui { position: fixed; bottom: 0; left: 0; right: 0; padding: 16px 16px calc(16px + env(safe-area-inset-bottom)); z-index: 20; background: linear-gradient(to top, rgba(18,28,38,1) 60%, transparent); }
-    .macro-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1); overflow: hidden; margin-top: 4px; }
-    .macro-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
+    .font-inter { font-family: 'Inter', sans-serif; }
     
-    /* Modals & Login Screen */
-    .fullscreen-screen { position: fixed; inset: 0; background: var(--bg-dark); background-image: url('./assets/bg.jpg'); background-size: cover; background-position: center; z-index: 100; display: flex; flex-direction: column; padding: 0; overflow-y: auto; transition: opacity 0.5s; }
-    .fullscreen-screen::before { content: ''; position: absolute; inset: 0; background: rgba(18,28,38,0.85); backdrop-filter: blur(10px); z-index: -1; }
-    .fullscreen-screen.hidden { opacity: 0; pointer-events: none; }
+    .fintech-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+
+    /* Bottom Floating Nav */
+    .bottom-nav-container {
+      position: fixed;
+      bottom: calc(20px + env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 500px;
+      background-color: rgba(20, 20, 29, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border-card);
+      border-radius: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      z-index: 50;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 500;
+      cursor: pointer;
+      width: 48px;
+    }
+    .nav-item.active { color: var(--accent-purple); }
+    .nav-item svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; fill: none; }
+
+    .nav-fab {
+      width: 56px;
+      height: 56px;
+      border-radius: 28px;
+      background-color: var(--accent-purple);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+      transform: translateY(-8px);
+      color: white;
+      cursor: pointer;
+    }
+    .nav-fab svg { width: 28px; height: 28px; stroke: white; stroke-width: 2; }
+
+    /* Progress Bar Stack */
+    .progress-stacked { display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: #1e1e2d; }
+    .progress-chunk { height: 100%; transition: width 0.5s; }
+
+    /* Login Screen */
+    .login-screen { position: fixed; inset: 0; background: var(--bg-main); z-index: 100; display: flex; flex-direction: column; justify-content: center; padding: 24px; }
     
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 50; }
+    .input-fintech { width: 100%; background: #1e1e2d; border: 1px solid var(--border-card); color: white; padding: 12px 16px; border-radius: 12px; outline: none; transition: border 0.2s; font-family: 'Inter', sans-serif; }
+    .input-fintech:focus { border-color: var(--accent-purple); }
+    
+    .btn-fintech { width: 100%; background: var(--accent-purple); color: white; padding: 14px; border-radius: 12px; font-weight: 600; text-align: center; cursor: pointer; border: none; }
+    .btn-fintech:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Modals */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 60; opacity: 0; pointer-events: none; transition: 0.3s; display: flex; align-items: flex-end; }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
-    .modal-content { width: 100%; max-width: 500px; background: var(--bg-dark); border-top-left-radius: 32px; border-top-right-radius: 32px; padding: 24px 24px calc(24px + env(safe-area-inset-bottom)) 24px; max-height: 90vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.4s; box-shadow: 0 -10px 40px rgba(0,0,0,0.5); }
-    .modal-overlay.active .modal-content { transform: translateY(0); }
-    
-    .input-cozy { width: 100%; padding: 14px 16px; border-radius: 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; font-family: inherit; margin-bottom: 12px; outline: none; font-size: 16px; transition: border-color 0.2s; }
-    .input-cozy:focus { border-color: var(--accent); }
-    .btn-cozy { width: 100%; padding: 16px; border-radius: 20px; background: var(--accent); color: #fff; font-weight: 700; font-size: 16px; border: none; cursor: pointer; transition: transform 0.1s, filter 0.2s; }
-    .btn-cozy:active { transform: scale(0.97); }
-    .btn-cozy:disabled { background: #555; cursor: not-allowed; }
-    
-    /* Nav Buttons (SVG Icons) */
-    .nav-btn { width: 54px; height: 54px; border-radius: 27px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; backdrop-filter: blur(10px); color: white; transition: background 0.2s; }
-    .nav-btn:active { background: rgba(255,255,255,0.2); }
-    .nav-btn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    .nav-btn.main { width: 72px; height: 72px; border-radius: 36px; background: var(--accent); box-shadow: 0 8px 24px rgba(240, 147, 43, 0.4); border: none; }
-    .nav-btn.main svg { width: 32px; height: 32px; }
+    .modal-sheet { width: 100%; background: var(--bg-card); border-top: 1px solid var(--border-card); border-radius: 24px 24px 0 0; padding: 24px; padding-bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateY(100%); transition: 0.4s cubic-bezier(0.3, 1, 0.3, 1); max-height: 90vh; overflow-y: auto; }
+    .modal-overlay.active .modal-sheet { transform: translateY(0); }
   </style>
 </head>
 <body>
 
-  <!-- ================= AUTHENTICATION / LOGIN SCREEN ================= -->
-  <div id="loginScreen" class="fullscreen-screen hidden">
-    <div class="flex-1 flex flex-col justify-center px-6">
-      <div class="text-center mb-10">
-        <div class="w-24 h-24 bg-white/10 rounded-3xl mx-auto mb-6 flex items-center justify-center border border-white/20 shadow-xl backdrop-blur-md">
-          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[#f0932b]"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path><path d="m8 17 4 4 4-4"></path><path d="M12 12v9"></path></svg>
+  <!-- ================= LOGIN SCREEN ================= -->
+  <div id="loginScreen" class="login-screen hidden">
+    <div class="max-w-sm mx-auto w-full">
+      <div class="flex items-center gap-3 mb-8">
+        <div class="w-10 h-10 bg-[#1e1e2d] rounded-lg flex items-center justify-center border border-[#252538]">
+          <svg class="w-6 h-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
         </div>
-        <h1 class="text-3xl font-bold tracking-tight mb-2 font-nunito">Cozy Journey</h1>
-        <p class="text-gray-400 text-sm">เข้าสู่ระบบเพื่อเดินทางต่อ</p>
+        <h1 class="text-2xl font-bold font-inter tracking-tight">Nutri Journal</h1>
       </div>
       
-      <div class="glass-panel p-6">
-        <label class="block text-xs text-gray-400 mb-2 uppercase tracking-wider">Username</label>
-        <input type="text" id="loginUser" class="input-cozy" placeholder="Enter username">
-        
-        <label class="block text-xs text-gray-400 mb-2 mt-4 uppercase tracking-wider">Password</label>
-        <input type="password" id="loginPass" class="input-cozy" placeholder="Enter password">
-        
-        <button class="btn-cozy mt-6" onclick="handleLogin()">Sign In</button>
+      <div class="fintech-card p-6">
+        <h2 class="text-sm text-gray-400 font-bold tracking-widest mb-4">AUTHENTICATION</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs text-gray-500 mb-1 font-inter uppercase">Username</label>
+            <input type="text" id="loginUser" class="input-fintech" placeholder="tradergt">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1 font-inter uppercase">Password</label>
+            <input type="password" id="loginPass" class="input-fintech" placeholder="••••••••">
+          </div>
+          <button class="btn-fintech mt-2" onclick="handleLogin()">Sign In</button>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- ================= MAIN APP ================= -->
-  <div class="app-container" id="mainApp">
-    <div class="app-overlay"></div>
-
-    <!-- Top Stats -->
-    <div class="absolute top-10 left-0 right-0 px-6 flex justify-between items-start z-10">
-      <div class="glass-panel px-5 py-3">
-        <div class="text-xs text-gray-300 mb-1">แคลอรี่คงเหลือ</div>
-        <div class="text-3xl font-bold font-nunito tracking-tight text-white"><span id="dispRemain">0</span></div>
-        <div class="text-[10px] text-gray-400 mt-1">เป้าหมาย: <span id="dispTarget">0</span> kcal</div>
+  <div id="mainApp" class="pb-32 h-screen overflow-y-auto">
+    
+    <!-- Top Header -->
+    <div class="px-5 pt-6 pb-2 flex justify-between items-center sticky top-0 bg-[#0c0d12]/90 backdrop-blur z-40">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-[#1e1e2d] rounded-lg flex items-center justify-center border border-[#252538]">
+          <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+        </div>
+        <span class="font-bold font-inter text-lg">Nutri Journal</span>
       </div>
-      
-      <!-- Date Paginator -->
-      <div class="glass-panel px-4 py-2 flex items-center gap-3">
-        <button onclick="changeDate(-1)" class="text-gray-400 p-1 active:text-white transition">❮</button>
-        <span id="dateDisplay" class="text-sm font-semibold">วันนี้</span>
-        <button onclick="changeDate(1)" class="text-gray-400 p-1 active:text-white transition">❯</button>
+      <div class="flex gap-2">
+        <button onclick="changeDate(-1)" class="w-8 h-8 rounded-full bg-[#1e1e2d] border border-[#252538] flex items-center justify-center text-gray-400">❮</button>
+        <div class="px-3 py-1 bg-[#1e1e2d] border border-[#252538] rounded-full text-sm font-semibold flex items-center" id="dateDisplay">Today</div>
+        <button onclick="changeDate(1)" class="w-8 h-8 rounded-full bg-[#1e1e2d] border border-[#252538] flex items-center justify-center text-gray-400">❯</button>
       </div>
     </div>
 
-    <!-- High Quality Vector Avatar Animation -->
-    <div id="journeyCharacter" style="bottom: 250px;">
-      <div class="bg-black/60 px-4 py-1.5 rounded-full text-xs font-nunito font-bold text-white mb-2 shadow-lg backdrop-blur-md border border-white/20">
-        <span id="charWeightLabel">85.0 kg</span>
-      </div>
-      <!-- Premium DiceBear SVG Avatar -->
-      <div class="avatar-bounce">
-        <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Felix&backgroundColor=transparent" alt="Avatar" class="w-full h-full object-contain">
+    <!-- VIEW: JOURNEY -->
+    <div id="view-journey" class="px-5 mt-4 space-y-4">
+      <div class="fintech-card p-5 relative overflow-hidden">
+        <!-- Background decorative vectors -->
+        <div class="absolute bottom-0 left-0 right-0 h-32 opacity-20 pointer-events-none" style="background: linear-gradient(180deg, transparent 0%, #38bdf8 100%);"></div>
+        
+        <div class="flex justify-between items-start relative z-10">
+          <div>
+            <div class="text-[10px] text-gray-400 font-inter tracking-widest font-bold mb-1 uppercase">Your Traveller</div>
+            <div class="text-2xl font-bold font-inter tracking-tight">Trail Walker</div>
+            <div class="text-xs text-gray-500 mt-1">นักเดินป่า · กำลังมุ่งหน้าสู่เป้าหมาย</div>
+          </div>
+          <div class="text-right">
+            <div class="text-3xl font-inter font-bold tracking-tighter"><span id="j-current-w">80.0</span> <span class="text-sm font-normal text-gray-400">kg</span></div>
+            <div class="text-xs text-emerald-400 font-inter mt-1" id="j-lost-w">▼ 0.0 kg จากจุดเริ่ม</div>
+          </div>
+        </div>
+
+        <!-- Avatar Display -->
+        <div class="flex justify-center mt-6 mb-8 relative z-10">
+          <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Felix&backgroundColor=transparent" alt="Traveller" class="w-40 h-40 drop-shadow-2xl">
+        </div>
+
+        <!-- Metrics -->
+        <div class="grid grid-cols-4 gap-2 text-center relative z-10 border-t border-[#252538] pt-4">
+          <div>
+            <div class="text-[10px] text-gray-500 font-inter tracking-wider mb-1">START</div>
+            <div class="text-sm font-inter font-bold" id="j-start-w">82.3</div>
+          </div>
+          <div>
+            <div class="text-[10px] text-gray-500 font-inter tracking-wider mb-1">NOW</div>
+            <div class="text-sm font-inter font-bold text-purple-400" id="j-now-w">80.0</div>
+          </div>
+          <div>
+            <div class="text-[10px] text-gray-500 font-inter tracking-wider mb-1">GOAL</div>
+            <div class="text-sm font-inter font-bold text-orange-400" id="j-goal-w">75.0</div>
+          </div>
+          <div>
+            <div class="text-[10px] text-gray-500 font-inter tracking-wider mb-1">BMI</div>
+            <div class="text-sm font-inter font-bold text-red-400" id="j-bmi">27.0</div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Bottom UI (Macros + Navigation) -->
-    <div class="bottom-ui">
-      <!-- Main Dashboard Macros -->
-      <div class="glass-panel p-4 mb-4">
-        <div class="grid grid-cols-3 gap-4">
+    <!-- VIEW: CALORIES -->
+    <div id="view-calories" class="px-5 mt-4 space-y-4 hidden">
+      <!-- Top Stats Card -->
+      <div class="fintech-card p-5">
+        <div class="grid grid-cols-3 gap-4 mb-4">
           <div>
-            <div class="flex justify-between text-[10px] mb-1"><span class="text-[#3498db] font-bold">PRO</span><span id="mPro" class="font-nunito">0g</span></div>
-            <div class="macro-bar"><div class="macro-fill bg-[#3498db]" id="barPro" style="width:0%"></div></div>
+            <div class="text-[10px] text-gray-400 font-inter tracking-widest font-bold mb-1 uppercase">7D Trend</div>
+            <div class="text-lg font-inter font-bold" id="c-trend">80.1 kg</div>
           </div>
-          <div>
-            <div class="flex justify-between text-[10px] mb-1"><span class="text-[#e67e22] font-bold">CARB</span><span id="mCarb" class="font-nunito">0g</span></div>
-            <div class="macro-bar"><div class="macro-fill bg-[#e67e22]" id="barCarb" style="width:0%"></div></div>
+          <div class="border-l border-[#252538] pl-4">
+            <div class="text-[10px] text-gray-400 font-inter tracking-widest font-bold mb-1 uppercase">Remaining</div>
+            <div class="text-lg font-inter font-bold text-emerald-400" id="c-remain">1,817</div>
+            <div class="text-[10px] text-gray-500">kcal</div>
           </div>
-          <div>
-            <div class="flex justify-between text-[10px] mb-1"><span class="text-[#e74c3c] font-bold">FAT</span><span id="mFat" class="font-nunito">0g</span></div>
-            <div class="macro-bar"><div class="macro-fill bg-[#e74c3c]" id="barFat" style="width:0%"></div></div>
+          <div class="border-l border-[#252538] pl-4">
+            <div class="text-[10px] text-gray-400 font-inter tracking-widest font-bold mb-1 uppercase">To Goal</div>
+            <div class="text-lg font-inter font-bold text-orange-400" id="c-togoal">5.0 kg</div>
           </div>
         </div>
       </div>
 
-      <!-- Navigation (High Quality SVG Icons) -->
-      <div class="flex gap-4 items-center justify-center">
-        <!-- History Icon -->
-        <button class="nav-btn" onclick="openModal('historyModal')">
-          <svg viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>
-        </button>
-        <!-- Camera Icon -->
-        <button class="nav-btn main" onclick="openScanner()">
-          <svg viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>
-        </button>
-        <!-- Weight Icon -->
-        <button class="nav-btn" onclick="openModal('weightModal')">
-          <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
-        </button>
-        <!-- Settings Icon -->
-        <button class="nav-btn" onclick="openModal('profileModal')">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-        </button>
+      <!-- Nutrient Allocation Card -->
+      <div class="fintech-card p-5">
+        <div class="flex justify-between items-end mb-3">
+          <div>
+            <div class="text-[10px] text-gray-400 font-inter tracking-widest font-bold mb-1 uppercase">Nutrient Allocation</div>
+            <div class="text-sm text-gray-300">สัดส่วนโภชนาการวันนี้</div>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] text-gray-400 font-inter tracking-widest font-bold mb-1 uppercase">Energy Split</div>
+            <div class="text-[10px] text-gray-500 font-inter" id="c-split">TARGET P 30 · C 40 · F 30</div>
+          </div>
+        </div>
+
+        <!-- Stacked Bar -->
+        <div class="progress-stacked mb-6">
+          <div class="progress-chunk bg-blue-500" id="bar-stack-p" style="width: 30%"></div>
+          <div class="progress-chunk bg-orange-500" id="bar-stack-c" style="width: 40%"></div>
+          <div class="progress-chunk bg-red-500" id="bar-stack-f" style="width: 30%"></div>
+        </div>
+
+        <!-- Asset Rows -->
+        <div class="space-y-4">
+          <!-- Protein -->
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+              <div>
+                <div class="flex items-center gap-2"><span class="font-bold font-inter text-sm">Protein</span> <span class="text-[9px] px-1.5 py-0.5 rounded-full border border-[#252538] text-gray-400">โปรตีน</span></div>
+              </div>
+            </div>
+            <div class="text-right flex items-end gap-4">
+              <div class="font-inter font-bold text-sm"><span id="val-p">0</span><span class="text-gray-500 font-normal text-xs">/<span id="tgt-p">176</span>g</span></div>
+            </div>
+          </div>
+          <!-- Carbs -->
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <div class="w-2 h-2 rounded-full bg-orange-500"></div>
+              <div>
+                <div class="flex items-center gap-2"><span class="font-bold font-inter text-sm">Carbs</span> <span class="text-[9px] px-1.5 py-0.5 rounded-full border border-[#252538] text-gray-400">คาร์โบไฮเดรต</span></div>
+              </div>
+            </div>
+            <div class="text-right flex items-end gap-4">
+              <div class="font-inter font-bold text-sm"><span id="val-c">0</span><span class="text-gray-500 font-normal text-xs">/<span id="tgt-c">229</span>g</span></div>
+            </div>
+          </div>
+          <!-- Fats -->
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <div class="w-2 h-2 rounded-full bg-red-500"></div>
+              <div>
+                <div class="flex items-center gap-2"><span class="font-bold font-inter text-sm">Fats</span> <span class="text-[9px] px-1.5 py-0.5 rounded-full border border-[#252538] text-gray-400">ไขมัน</span></div>
+              </div>
+            </div>
+            <div class="text-right flex items-end gap-4">
+              <div class="font-inter font-bold text-sm"><span id="val-f">0</span><span class="text-gray-500 font-normal text-xs">/<span id="tgt-f">60</span>g</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- VIEW: LOGS -->
+    <div id="view-logs" class="px-5 mt-4 space-y-4 hidden">
+      <div class="fintech-card p-5">
+        <h2 class="text-sm text-gray-400 font-bold tracking-widest mb-4 uppercase">Today's Logs</h2>
+        <div id="mealLogsContainer" class="space-y-4"></div>
       </div>
     </div>
 
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav-container">
+      <div class="nav-item active" onclick="switchTab('journey')" id="tab-journey">
+        <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+        <span>Journey</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('calories')" id="tab-calories">
+        <svg viewBox="0 0 24 24"><path d="M12 20V10"></path><path d="M18 20V4"></path><path d="M6 20v-4"></path></svg>
+        <span>Calories</span>
+      </div>
+      <div class="nav-fab" onclick="openScanner()">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      </div>
+      <div class="nav-item" onclick="openModal('weightModal')">
+        <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+        <span>Weight</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('logs')" id="tab-logs">
+        <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+        <span>Log</span>
+      </div>
+    </div>
   </div>
 
   <!-- ================= MODALS ================= -->
 
   <!-- Scanner Modal -->
   <div class="modal-overlay" id="scanModal">
-    <div class="modal-content">
+    <div class="modal-sheet">
       <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold">บันทึกอาหาร 📸</h2>
-        <button class="text-gray-400 text-2xl leading-none" onclick="closeModal('scanModal')">&times;</button>
+        <h2 class="text-xl font-bold font-inter tracking-tight">AI Food Scanner</h2>
+        <button class="text-gray-400 p-2" onclick="closeModal('scanModal')"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
       </div>
-      <div class="mb-4">
-        <label class="block text-sm text-gray-300 mb-2">มื้ออาหาร</label>
-        <select id="s-meal" class="input-cozy mb-4"><option value="breakfast">🌅 เช้า</option><option value="lunch">☀️ กลางวัน</option><option value="dinner">🌙 เย็น</option><option value="snack">🍩 ว่าง</option></select>
-        <label for="foodImg" class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-500 rounded-2xl cursor-pointer hover:bg-white/5 transition mb-2">
-          <svg class="w-8 h-8 text-gray-400 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-          <span class="text-sm text-gray-400">แตะเพื่ออัปโหลดหลายรูป</span>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs text-gray-500 mb-1 font-inter uppercase">Meal Type</label>
+          <select id="s-meal" class="input-fintech"><option value="breakfast">Breakfast</option><option value="lunch">Lunch</option><option value="dinner">Dinner</option><option value="snack">Snack</option></select>
+        </div>
+        <label for="foodImg" class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-[#252538] rounded-xl cursor-pointer hover:bg-[#1e1e2d] transition bg-[#14141d]">
+          <svg class="w-8 h-8 text-purple-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+          <span class="text-xs text-gray-400 font-inter">Tap to upload photos</span>
           <input type="file" id="foodImg" class="hidden" accept="image/*" multiple>
         </label>
         <div id="scanPreviewContainer" class="flex gap-2 mt-2 overflow-x-auto pb-2"></div>
+        <button class="btn-fintech w-full mt-4" id="btnAnalyze" onclick="executeScan()">Analyze Nutrition</button>
       </div>
-      <button class="btn-cozy mt-2" id="btnAnalyze" onclick="executeScan()">วิเคราะห์โภชนาการ (AI)</button>
     </div>
   </div>
 
-  <!-- Weight Log Modal -->
+  <!-- Weight Modal -->
   <div class="modal-overlay" id="weightModal">
-    <div class="modal-content">
+    <div class="modal-sheet">
       <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold">อัปเดตน้ำหนัก ⚖️</h2>
-        <button class="text-gray-400 text-2xl leading-none" onclick="closeModal('weightModal')">&times;</button>
+        <h2 class="text-xl font-bold font-inter tracking-tight">Log Weight</h2>
+        <button class="text-gray-400 p-2" onclick="closeModal('weightModal')"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
       </div>
-      <p class="text-sm text-gray-300 mb-6 text-center">ยิ่งน้ำหนักลด ตัวละครจะยิ่งเดินลึกเข้าไปในป่า!</p>
-      <input type="number" id="w-current" class="input-cozy text-3xl text-center font-bold font-nunito" placeholder="85.0" step="0.1">
-      <button class="btn-cozy mt-4" onclick="saveWeight()">บันทึกน้ำหนัก</button>
-    </div>
-  </div>
-
-  <!-- History Modal -->
-  <div class="modal-overlay" id="historyModal">
-    <div class="modal-content">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold">ประวัติ 📓</h2>
-        <button class="text-gray-400 text-2xl leading-none" onclick="closeModal('historyModal')">&times;</button>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs text-center text-gray-500 mb-2 font-inter uppercase">Current Weight (KG)</label>
+          <input type="number" id="w-current" class="input-fintech text-4xl text-center font-bold h-20" placeholder="80.0" step="0.1">
+        </div>
+        <button class="btn-fintech w-full" onclick="saveWeight()">Update Weight</button>
       </div>
-      <div id="mealLogsContainer" class="space-y-4"></div>
-    </div>
-  </div>
-
-  <!-- Profile Modal (Settings) -->
-  <div class="modal-overlay" id="profileModal">
-    <div class="modal-content">
-      <div class="flex justify-between items-center mb-6"><h2 class="text-xl font-bold">ตั้งเป้าหมาย 🏕️</h2><button class="text-gray-400 text-2xl leading-none" onclick="closeModal('profileModal')">&times;</button></div>
-      <div class="grid grid-cols-2 gap-3 mb-3">
-        <div><label class="block text-xs text-gray-400 mb-1">เริ่มแรก (kg)</label><input type="number" id="p-start-weight" class="input-cozy py-2"></div>
-        <div><label class="block text-xs text-gray-400 mb-1">เป้าหมาย (kg)</label><input type="number" id="p-t-weight" class="input-cozy py-2"></div>
-        <div><label class="block text-xs text-gray-400 mb-1">เพศ</label><select id="p-gen" class="input-cozy py-2"><option value="M">ชาย</option><option value="F">หญิง</option></select></div>
-        <div><label class="block text-xs text-gray-400 mb-1">อายุ</label><input type="number" id="p-age" class="input-cozy py-2"></div>
-        <div><label class="block text-xs text-gray-400 mb-1">ส่วนสูง (cm)</label><input type="number" id="p-height" class="input-cozy py-2"></div>
-        <div><label class="block text-xs text-gray-400 mb-1">กิจกรรม</label><select id="p-act" class="input-cozy py-2"><option value="1.2">นั่งทำงาน</option><option value="1.375">ขยับเบาๆ</option><option value="1.55">ปานกลาง</option><option value="1.725">หนัก</option></select></div>
-      </div>
-      <div class="mb-4">
-        <label class="block text-xs text-gray-400 mb-1">ระยะเวลาเป้าหมาย (เดือน)</label>
-        <input type="number" id="p-t-months" class="input-cozy py-2">
-      </div>
-      <div class="mb-6">
-        <label class="block text-xs text-gray-400 mb-1">สไตล์การกิน</label>
-        <select id="p-diet" class="input-cozy py-2"><option value="balanced">สมดุล (Balanced)</option><option value="highpro">เน้นโปรตีน (High Protein)</option><option value="lowcarb">ลดแป้ง (Low Carb)</option><option value="keto">คีโต (Keto)</option></select>
-      </div>
-      <button class="btn-cozy" onclick="saveProfile()">บันทึกเป้าหมาย</button>
-      
-      <!-- Logout -->
-      <button class="mt-6 text-sm text-red-400 w-full text-center border border-red-500/30 py-2 rounded-xl" onclick="logout()">ออกจากระบบ</button>
     </div>
   </div>
 
   <script>
     const defaultKey = ['AQ.Ab8','RN6KOCO','BdFbJzr','ZqMEDzH','nzJcepU','uKux98B','DvyO0XL','VVbYA'].join('');
     
-    // DATABASE SIMULATION (localStorage)
+    // DB Simulation
     let authState = JSON.parse(localStorage.getItem('db_auth')) || { isLoggedIn: false };
-    
-    // Migrate old profile if exists
-    let oldProfile = localStorage.getItem('nj_profile2');
-    if (oldProfile && !localStorage.getItem('db_profile')) {
-      localStorage.setItem('db_profile', oldProfile);
-    }
-    
     let pState = JSON.parse(localStorage.getItem('db_profile')) || {
-      g: 'M', a: 30, sw: 90, w: 85, h: 175, act: 1.2, tw: 75, tm: 3, diet: 'balanced', key: defaultKey
+      g: 'M', a: 30, sw: 82.3, w: 80.0, h: 175, act: 1.2, tw: 75.0, tm: 3, diet: 'balanced', key: defaultKey
     };
     if(!pState.sw) pState.sw = pState.w; 
-    
-    // Migrate old data if exists
-    let oldData = localStorage.getItem('nj_data2');
-    if (oldData && !localStorage.getItem('db_logs')) {
-      localStorage.setItem('db_logs', oldData);
-    }
     let appData = JSON.parse(localStorage.getItem('db_logs')) || {};
     
     let activeDate = new Date();
     let activeDateStr = "";
 
     function getDateStr(d) { return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
-    
-    // ================= AUTHENTICATION =================
+
+    // Init
     function initApp() {
       if (!authState.isLoggedIn) {
         document.getElementById('loginScreen').classList.remove('hidden');
@@ -280,40 +389,37 @@
         authState = { isLoggedIn: true, user: u };
         localStorage.setItem('db_auth', JSON.stringify(authState));
         initApp();
-      } else {
-        alert("รหัสผ่านไม่ถูกต้อง");
-      }
-    }
-    
-    function logout() {
-      authState = { isLoggedIn: false };
-      localStorage.setItem('db_auth', JSON.stringify(authState));
-      location.reload();
+      } else { alert("รหัสผ่านไม่ถูกต้อง"); }
     }
 
-    // ================= MAIN LOGIC =================
+    function switchTab(tabId) {
+      document.getElementById('view-journey').classList.add('hidden');
+      document.getElementById('view-calories').classList.add('hidden');
+      document.getElementById('view-logs').classList.add('hidden');
+      document.getElementById(`view-${tabId}`).classList.remove('hidden');
+      
+      document.getElementById('tab-journey').classList.remove('active');
+      document.getElementById('tab-calories').classList.remove('active');
+      document.getElementById('tab-logs').classList.remove('active');
+      document.getElementById(`tab-${tabId}`).classList.add('active');
+    }
+
+    function openModal(id) {
+      if(id === 'weightModal') document.getElementById('w-current').value = pState.w.toFixed(1);
+      document.getElementById(id).classList.add('active');
+    }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+    function saveWeight() {
+      let newW = Number(document.getElementById('w-current').value);
+      if(newW > 0) { pState.w = newW; localStorage.setItem('db_profile', JSON.stringify(pState)); computeMetrics(); closeModal('weightModal'); }
+    }
+
     function changeDate(days) {
       activeDate.setDate(activeDate.getDate() + days);
       activeDateStr = getDateStr(activeDate);
-      let dText = (activeDateStr === getDateStr(new Date())) ? "วันนี้" : activeDate.toLocaleDateString('th-TH', {day:'numeric', month:'short'});
-      document.getElementById('dateDisplay').textContent = dText;
+      document.getElementById('dateDisplay').textContent = (activeDateStr === getDateStr(new Date())) ? "Today" : activeDate.toLocaleDateString('en-US', {month:'short', day:'numeric'});
       computeMetrics();
-    }
-
-    function calculateTargets() {
-      let bmr = (pState.g === 'M') ? (10 * pState.w) + (6.25 * pState.h) - (5 * pState.a) + 5 : (10 * pState.w) + (6.25 * pState.h) - (5 * pState.a) - 161;
-      let tdee = bmr * pState.act;
-      let kgToLose = pState.w - pState.tw; if (kgToLose < 0) kgToLose = 0;
-      let dailyDeficit = (kgToLose * 7700) / ((pState.tm || 3) * 30);
-      if (dailyDeficit > 1100) dailyDeficit = 1100;
-      let targetCal = Math.round(tdee - dailyDeficit);
-      
-      let pro=0, carb=0, fat=0;
-      if(pState.diet === 'highpro') { pro = (targetCal*0.4)/4; fat = (targetCal*0.3)/9; carb = (targetCal*0.3)/4; }
-      else if(pState.diet === 'lowcarb') { pro = (targetCal*0.35)/4; fat = (targetCal*0.45)/9; carb = (targetCal*0.2)/4; }
-      else if(pState.diet === 'keto') { carb = 30; pro = (targetCal*0.25)/4; fat = (targetCal - (carb*4 + pro*4))/9; }
-      else { pro = (targetCal*0.3)/4; fat = (targetCal*0.3)/9; carb = (targetCal*0.4)/4; }
-      return { cal: targetCal, pro: Math.round(pro), carb: Math.round(carb), fat: Math.round(fat) };
     }
 
     function computeMetrics() {
@@ -322,115 +428,85 @@
       let cur = { cal:0, pro:0, carb:0, fat:0 };
       ['breakfast','lunch','dinner','snack'].forEach(m => { dayData[m].forEach(x => { cur.cal+=x.cal; cur.pro+=x.pro; cur.carb+=x.carb; cur.fat+=x.fat; }); });
 
-      let targets = calculateTargets();
-      let remain = targets.cal - cur.cal;
-      document.getElementById('dispRemain').textContent = remain.toLocaleString();
-      document.getElementById('dispRemain').style.color = remain < 0 ? '#e74c3c' : '#ffffff';
-      document.getElementById('dispTarget').textContent = targets.cal.toLocaleString();
+      // Goals
+      let bmr = (pState.g === 'M') ? (10 * pState.w) + (6.25 * pState.h) - (5 * pState.a) + 5 : (10 * pState.w) + (6.25 * pState.h) - (5 * pState.a) - 161;
+      let targetCal = Math.round((bmr * pState.act) - 500);
+      let targets = { cal: targetCal, pro: Math.round((targetCal*0.3)/4), carb: Math.round((targetCal*0.4)/4), fat: Math.round((targetCal*0.3)/9) };
+      
+      // Update Journey UI
+      document.getElementById('j-start-w').textContent = pState.sw.toFixed(1);
+      document.getElementById('j-now-w').textContent = pState.w.toFixed(1);
+      document.getElementById('j-goal-w').textContent = pState.tw.toFixed(1);
+      document.getElementById('j-current-w').textContent = pState.w.toFixed(1);
+      document.getElementById('j-bmi').textContent = (pState.w / Math.pow(pState.h/100, 2)).toFixed(1);
+      let lost = pState.sw - pState.w;
+      document.getElementById('j-lost-w').textContent = `▼ ${lost.toFixed(1)} kg จากจุดเริ่ม`;
+      
+      // Update Calories UI
+      document.getElementById('c-remain').textContent = (targets.cal - cur.cal).toLocaleString();
+      document.getElementById('c-togoal').textContent = (pState.w - pState.tw).toFixed(1) + " kg";
+      
+      // Update Macros UI
+      document.getElementById('val-p').textContent = Math.round(cur.pro); document.getElementById('tgt-p').textContent = targets.pro;
+      document.getElementById('val-c').textContent = Math.round(cur.carb); document.getElementById('tgt-c').textContent = targets.carb;
+      document.getElementById('val-f').textContent = Math.round(cur.fat); document.getElementById('tgt-f').textContent = targets.fat;
+      
+      // Progress bars logic
+      let totalM = targets.pro + targets.carb + targets.fat;
+      document.getElementById('bar-stack-p').style.width = (targets.pro/totalM*100) + '%';
+      document.getElementById('bar-stack-c').style.width = (targets.carb/totalM*100) + '%';
+      document.getElementById('bar-stack-f').style.width = (targets.fat/totalM*100) + '%';
 
-      const setBar = (id, val, tgt) => {
-        let p = Math.min((val/tgt)*100, 100);
-        if(document.getElementById(`bar${id}`)) {
-          document.getElementById(`bar${id}`).style.width = p + '%';
-          document.getElementById(`m${id}`).textContent = `${Math.round(val)}/${tgt}g`;
-        }
-      };
-      setBar('Pro', cur.pro, targets.pro); setBar('Carb', cur.carb, targets.carb); setBar('Fat', cur.fat, targets.fat);
-      renderHistory(dayData); updateJourneyProgress();
-    }
-
-    function renderHistory(dayData) {
-      const c = document.getElementById('mealLogsContainer');
+      // Render Logs
       let html = "";
-      [{ id: 'breakfast', icon: '🌅', name: 'อาหารเช้า' }, { id: 'lunch', icon: '☀️', name: 'กลางวัน' }, { id: 'dinner', icon: '🌙', name: 'เย็น' }, { id: 'snack', icon: '🍩', name: 'ของว่าง' }].forEach(m => {
-        let arr = dayData[m.id]; let mealCal = arr.reduce((sum, item) => sum + item.cal, 0);
-        html += `<div class="bg-white/5 rounded-2xl p-4 mb-3 border border-white/10"><div class="flex justify-between items-center mb-2"><span class="font-bold text-sm">${m.icon} ${m.name}</span><span class="font-mono text-sm text-[#f0932b]">${mealCal} kcal</span></div>`;
-        if(arr.length === 0) html += `<div class="text-xs text-gray-500 italic">ยังไม่มีบันทึก</div>`;
-        else arr.forEach(item => { html += `<div class="flex justify-between items-center py-2 border-t border-white/10 mt-2"><div><div class="text-sm text-gray-200">${item.name}</div><div class="text-[10px] text-gray-400 font-mono">P:${item.pro} C:${item.carb} F:${item.fat}</div></div><div class="text-xs font-mono text-gray-300">${item.cal}</div></div>`; });
+      ['breakfast','lunch','dinner','snack'].forEach(m => {
+        let arr = dayData[m]; let mealCal = arr.reduce((s, x) => s + x.cal, 0);
+        html += `<div class="bg-[#1e1e2d] rounded-xl p-4 mb-3 border border-[#252538]"><div class="flex justify-between items-center"><span class="font-bold text-sm uppercase tracking-wide">${m}</span><span class="font-mono text-sm text-purple-400">${mealCal} kcal</span></div>`;
+        arr.forEach(item => { html += `<div class="flex justify-between py-2 border-t border-[#252538] mt-2 text-sm"><div class="text-gray-300">${item.name}</div><div class="text-gray-400 font-mono text-xs">P:${item.pro} C:${item.carb} F:${item.fat}</div></div>`; });
         html += `</div>`;
       });
-      if(c) c.innerHTML = html;
+      document.getElementById('mealLogsContainer').innerHTML = html;
     }
 
-    // JOURNEY ANIMATION: Move character up the screen based on weight loss progress
-    function updateJourneyProgress() {
-      let startW = pState.sw || pState.w;
-      let currentW = pState.w;
-      let targetW = pState.tw;
-      
-      document.getElementById('charWeightLabel').textContent = `${currentW} kg`;
-      
-      let progress = 0;
-      if (startW > targetW) { progress = (startW - currentW) / (startW - targetW); }
-      progress = Math.max(0, Math.min(progress, 1));
-      
-      // Bottom CSS value: 200px (start) to 60vh (finish)
-      let bottomPx = 180 + (progress * (window.innerHeight * 0.4));
-      document.getElementById('journeyCharacter').style.bottom = `${bottomPx}px`;
-      
-      // Scale down slightly as they walk away (perspective)
-      let scale = 1.0 - (progress * 0.3);
-      document.getElementById('journeyCharacter').style.transform = `translateX(-50%) scale(${scale})`;
-    }
-
-    // ================= MODALS & SETTINGS =================
-    function openModal(id) { 
-      if(id === 'profileModal') {
-        document.getElementById('p-start-weight').value = pState.sw; document.getElementById('p-gen').value = pState.g; document.getElementById('p-age').value = pState.a; document.getElementById('p-height').value = pState.h; document.getElementById('p-act').value = pState.act; document.getElementById('p-t-weight').value = pState.tw; document.getElementById('p-t-months').value = pState.tm; document.getElementById('p-diet').value = pState.diet;
-      }
-      if(id === 'weightModal') document.getElementById('w-current').value = pState.w;
-      document.getElementById(id).classList.add('active'); 
-    }
-    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-    
-    function saveProfile() {
-      pState.sw = Number(document.getElementById('p-start-weight').value) || pState.w; pState.g = document.getElementById('p-gen').value; pState.a = Number(document.getElementById('p-age').value); pState.h = Number(document.getElementById('p-height').value); pState.act = Number(document.getElementById('p-act').value); pState.tw = Number(document.getElementById('p-t-weight').value); pState.tm = Number(document.getElementById('p-t-months').value); pState.diet = document.getElementById('p-diet').value;
-      localStorage.setItem('db_profile', JSON.stringify(pState)); computeMetrics(); closeModal('profileModal');
-    }
-    function saveWeight() {
-      let newW = Number(document.getElementById('w-current').value);
-      if(newW > 0) { pState.w = newW; localStorage.setItem('db_profile', JSON.stringify(pState)); computeMetrics(); closeModal('weightModal'); }
-    }
-
-    // ================= AI SCANNER =================
+    // Scanner
     let b64Images = [];
     document.getElementById('foodImg').addEventListener('change', function(e) {
       const container = document.getElementById('scanPreviewContainer');
       Array.from(this.files).forEach(file => {
         const reader = new FileReader();
         reader.onload = e => {
-          const img = document.createElement('img'); img.src = e.target.result; img.className = 'w-16 h-16 object-cover rounded-xl border border-white/20'; container.appendChild(img);
+          const img = document.createElement('img'); img.src = e.target.result; img.className = 'w-16 h-16 object-cover rounded-lg border border-[#252538]'; container.appendChild(img);
           b64Images.push(e.target.result.split(',')[1]);
         }
         reader.readAsDataURL(file);
       });
     });
-    
-    function openScanner() { document.getElementById('scanPreviewContainer').innerHTML = ''; b64Images = []; document.getElementById('btnAnalyze').textContent = "วิเคราะห์โภชนาการ (AI)"; document.getElementById('btnAnalyze').disabled = false; openModal('scanModal'); }
-    
+
+    function openScanner() { document.getElementById('scanPreviewContainer').innerHTML = ''; b64Images = []; document.getElementById('btnAnalyze').textContent = "Analyze Nutrition"; document.getElementById('btnAnalyze').disabled = false; openModal('scanModal'); }
+
     async function executeScan() {
-      if(b64Images.length === 0) return alert("กรุณาอัปโหลดรูปอาหาร");
-      const btn = document.getElementById('btnAnalyze'); btn.disabled = true; btn.textContent = "กำลังสกัดข้อมูล...";
-      const schemaObj = { type: "ARRAY", items: { type: "OBJECT", properties: { dish_name: { type: "STRING" }, estimated_weight_g: { type: "INTEGER" }, hidden_oil_tbsp: { type: "NUMBER" }, nutritional_breakdown: { type: "OBJECT", properties: { calories: { type: "INTEGER" }, macros: { type: "OBJECT", properties: { protein_g: { type: "INTEGER" }, fat_g: { type: "INTEGER" }, carbs_g: { type: "INTEGER" } } }, micros: { type: "OBJECT", properties: { fiber_g: { type: "INTEGER" }, sodium_mg: { type: "INTEGER" } } } } }, scientific_evaluation: { type: "OBJECT", properties: { mps_threshold_reached: { type: "BOOLEAN" }, satiety_index: { type: "STRING" }, actionable_tip: { type: "STRING" } } } } } };
+      if(b64Images.length === 0) return alert("Please upload an image");
+      const btn = document.getElementById('btnAnalyze'); btn.disabled = true; btn.textContent = "Analyzing with AI...";
+      
+      const schemaObj = { type: "ARRAY", items: { type: "OBJECT", properties: { dish_name: { type: "STRING" }, nutritional_breakdown: { type: "OBJECT", properties: { calories: { type: "INTEGER" }, macros: { type: "OBJECT", properties: { protein_g: { type: "INTEGER" }, fat_g: { type: "INTEGER" }, carbs_g: { type: "INTEGER" } } } } } } } };
       try {
-        const parts = [{ text: "You are a Thai elite sports nutritionist AI. Analyze the food images. Identify ALL distinct food dishes present. Answer in THAI language. Estimate macros accurately." }];
-        b64Images.forEach(imgData => parts.push({ inline_data: { mime_type: "image/jpeg", data: imgData } }));
+        const parts = [{ text: "Analyze the food. Return list of dishes and macros." }];
+        b64Images.forEach(img => parts.push({ inline_data: { mime_type: "image/jpeg", data: img } }));
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${pState.key}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ parts: parts }], generationConfig: { response_mime_type: "application/json", response_schema: schemaObj } }) });
         const data = await response.json();
         if (response.ok) {
           const items = JSON.parse(data.candidates[0].content.parts[0].text);
           let mealType = document.getElementById('s-meal').value;
-          items.forEach(item => { appData[activeDateStr][mealType].push({ name: item.dish_name, cal: item.nutritional_breakdown.calories, pro: item.nutritional_breakdown.macros.protein_g, carb: item.nutritional_breakdown.macros.carbs_g, fat: item.nutritional_breakdown.macros.fat_g, fib: item.nutritional_breakdown.micros.fiber_g, sod: item.nutritional_breakdown.micros.sodium_mg }); });
+          items.forEach(item => { appData[activeDateStr][mealType].push({ name: item.dish_name, cal: item.nutritional_breakdown.calories, pro: item.nutritional_breakdown.macros.protein_g, carb: item.nutritional_breakdown.macros.carbs_g, fat: item.nutritional_breakdown.macros.fat_g }); });
           localStorage.setItem('db_logs', JSON.stringify(appData)); computeMetrics();
-          btn.textContent = "บันทึกสำเร็จ!"; setTimeout(() => closeModal('scanModal'), 800);
-        } else throw new Error("API Error");
-      } catch (err) { alert("การเชื่อมต่อล้มเหลว กรุณาลองใหม่อีกครั้ง"); btn.disabled = false; btn.textContent = "วิเคราะห์โภชนาการ (AI)"; }
+          btn.textContent = "Success!"; setTimeout(() => closeModal('scanModal'), 800);
+        } else throw new Error();
+      } catch (err) { alert("Failed"); btn.disabled = false; btn.textContent = "Analyze Nutrition"; }
     }
 
-    // BOOTSTRAP
     initApp();
   </script>
 </body>
 </html>
 
-<!-- cache bust v17 -->
+<!-- cache bust v18 -->
